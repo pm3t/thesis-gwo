@@ -15,12 +15,15 @@ class MetricTable(ctk.CTkFrame):
         
         metrics = ['MAE', 'MSE', 'RMSE', 'MAPE', 'R2']
         
+        self.table_frame.grid_columnconfigure(0, weight=1)
+        self.table_frame.grid_columnconfigure(1, weight=1)
+
         for i, m in enumerate(metrics):
             lbl = ctk.CTkLabel(self.table_frame, text=m, font=ctk.CTkFont(weight="bold"))
-            lbl.grid(row=0, column=i, padx=10, pady=2)
+            lbl.grid(row=i, column=0, padx=10, pady=2, sticky="e")
             
             val = ctk.CTkLabel(self.table_frame, text="-")
-            val.grid(row=1, column=i, padx=10, pady=2)
+            val.grid(row=i, column=1, padx=10, pady=2, sticky="w")
             
             self.labels[m] = lbl
             self.values[m] = val
@@ -74,26 +77,25 @@ class IterationTable(ctk.CTkFrame):
     def __init__(self, master, title="GWO Convergence History", **kwargs):
         super().__init__(master, **kwargs)
         
-        self.title_label = ctk.CTkLabel(self, text=title, font=ctk.CTkFont(size=16, weight="bold"))
+        self.title_label = ctk.CTkLabel(self, text=title, font=ctk.CTkFont(size=14, weight="bold"))
         self.title_label.pack(pady=5)
         
-        # Scrollable frame for the table
-        self.scroll_frame = ctk.CTkScrollableFrame(self)
-        self.scroll_frame.pack(fill="both", expand=True, padx=10, pady=5)
+        self.table_inner_frame = ctk.CTkFrame(self)
+        self.table_inner_frame.pack(fill="both", expand=True, padx=5, pady=5)
         
         # Headers
-        ctk.CTkLabel(self.scroll_frame, text="Iteration", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=20, pady=5)
-        ctk.CTkLabel(self.scroll_frame, text="Best Fitness (MAPE)", font=ctk.CTkFont(weight="bold")).grid(row=0, column=1, padx=20, pady=5)
+        ctk.CTkLabel(self.table_inner_frame, text="Iteration", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=20, pady=5)
+        ctk.CTkLabel(self.table_inner_frame, text="Best Fitness (MAPE)", font=ctk.CTkFont(weight="bold")).grid(row=0, column=1, padx=20, pady=5)
 
     def update_history(self, convergence_curve):
         # Clear previous rows (except headers)
-        for widget in self.scroll_frame.winfo_children():
+        for widget in self.table_inner_frame.winfo_children():
             if int(widget.grid_info()["row"]) > 0:
                 widget.destroy()
                 
         for i, fitness in enumerate(convergence_curve):
-            ctk.CTkLabel(self.scroll_frame, text=f"Iterasi {i+1}").grid(row=i+1, column=0, padx=20, pady=2)
-            ctk.CTkLabel(self.scroll_frame, text=f"{fitness:.6f}%").grid(row=i+1, column=1, padx=20, pady=2)
+            ctk.CTkLabel(self.table_inner_frame, text=f"Iterasi {i+1}").grid(row=i+1, column=0, padx=20, pady=2)
+            ctk.CTkLabel(self.table_inner_frame, text=f"{fitness:.6f}%").grid(row=i+1, column=1, padx=20, pady=2)
 
 class ScrollableText(ctk.CTkFrame):
     def __init__(self, master, **kwargs):

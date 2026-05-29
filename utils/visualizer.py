@@ -107,3 +107,55 @@ class Visualizer:
         ax.set_ylabel(metric_name)
         plt.tight_layout()
         return fig, ax
+
+    @staticmethod
+    def plot_residuals(y_true, y_pred):
+        """
+        Plot residual analysis: residuals over time and distribution of residuals.
+        """
+        y_true, y_pred = np.array(y_true), np.array(y_pred)
+        residuals = y_true - y_pred
+        
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+        
+        # Residuals over time
+        ax1.plot(residuals, color='red', alpha=0.7)
+        ax1.axhline(0, color='black', linestyle='--')
+        ax1.set_title("Residuals Over Time")
+        ax1.set_xlabel("Time Index")
+        ax1.set_ylabel("Residual (Actual - Predicted)")
+        
+        # Residual distribution
+        sns.histplot(residuals, kde=True, ax=ax2, color='purple')
+        ax2.set_title("Residuals Distribution")
+        ax2.set_xlabel("Residual Value")
+        
+        plt.tight_layout()
+        return fig
+
+    @staticmethod
+    def plot_actual_vs_predicted(y_true, y_pred):
+        """
+        Plot scatter plot of Actual vs Predicted values.
+        """
+        from sklearn.metrics import r2_score
+        y_true, y_pred = np.array(y_true), np.array(y_pred)
+        
+        fig, ax = plt.subplots(figsize=(7, 6))
+        ax.scatter(y_true, y_pred, alpha=0.7, color='blue', edgecolors='k')
+        
+        min_val = min(y_true.min(), y_pred.min())
+        max_val = max(y_true.max(), y_pred.max())
+        ax.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2, label='Ideal Fit (y = y_pred)')
+        
+        ax.set_title("Correlation: Actual vs Predicted")
+        ax.set_xlabel("Actual Values")
+        ax.set_ylabel("Predicted Values")
+        ax.legend()
+        
+        r2 = r2_score(y_true, y_pred)
+        ax.text(0.05, 0.95, f"R² = {r2:.4f}", transform=ax.transAxes, 
+                verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+        
+        plt.tight_layout()
+        return fig, ax

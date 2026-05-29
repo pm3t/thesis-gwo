@@ -49,6 +49,7 @@ class GreyWolfOptimizer:
 
     def optimize(self, y_true, y_pred_ma, y_pred_es, y_pred_lr):
         convergence_curve = []
+        positions_history = []  # stores (positions_snapshot, alpha_pos, beta_pos, delta_pos) per iter
         
         for t in range(self.max_iter):
             for i in range(self.n_wolves):
@@ -115,7 +116,15 @@ class GreyWolfOptimizer:
                     self.positions[i] = np.random.dirichlet(np.ones(self.dim))
 
             convergence_curve.append(self.alpha_score)
+            # Save snapshot: all wolf positions + leaders
+            positions_history.append({
+                'wolves': self.positions.copy(),
+                'alpha': self.alpha_pos.copy(),
+                'beta': self.beta_pos.copy(),
+                'delta': self.delta_pos.copy(),
+                'alpha_score': self.alpha_score,
+            })
             
         # Ensure final alpha position is normalized
         best_weights = self.alpha_pos / np.sum(self.alpha_pos)
-        return best_weights, convergence_curve
+        return best_weights, convergence_curve, positions_history
