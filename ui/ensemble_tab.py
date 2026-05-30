@@ -58,19 +58,7 @@ class EnsembleTab(ctk.CTkFrame):
         self.comparison_table.pack(fill="both", expand=True, padx=5, pady=5)
         
         self.lbl_improvement = ctk.CTkLabel(self, text="Accuracy Improvement: -", font=ctk.CTkFont(size=14, weight="bold"))
-        self.lbl_improvement.grid(row=2, column=0, columnspan=2, pady=(10, 2))
-        
-        self.lbl_wilcoxon = ctk.CTkLabel(self, text="Wilcoxon Signed-Rank Test: -", font=ctk.CTkFont(size=13, weight="bold"), text_color="#2ba37a")
-        self.lbl_wilcoxon.grid(row=3, column=0, columnspan=2, pady=2)
-
-        self.diag_frame = ctk.CTkFrame(self)
-        self.diag_frame.grid(row=4, column=0, columnspan=2, pady=10)
-
-        self.btn_residuals = ctk.CTkButton(self.diag_frame, text="Show Residual Analysis", command=self.show_residuals, state="disabled")
-        self.btn_residuals.pack(side="left", padx=10)
-
-        self.btn_correlation = ctk.CTkButton(self.diag_frame, text="Show Correlation Plot", command=self.show_correlation, state="disabled")
-        self.btn_correlation.pack(side="left", padx=10)
+        self.lbl_improvement.grid(row=2, column=0, columnspan=2, pady=(10, 10))
 
     def run_ensemble(self):
         if 'best_weights' not in self.gwo_results:
@@ -116,23 +104,7 @@ class EnsembleTab(ctk.CTkFrame):
             improvement = ((best_baseline_mape - metrics['MAPE']) / best_baseline_mape) * 100
             self.lbl_improvement.configure(text=f"Optimization vs Best Baseline: {improvement:.2f}% Improvement")
             
-            # 3.5 Calculate Wilcoxon signed-rank test against the best baseline
-            baselines = ['MA', 'ES', 'RNN']
-            mapes = [self.model_results[b]['metrics']['MAPE'] for b in baselines]
-            best_baseline_name = baselines[np.argmin(mapes)]
-            y_best_baseline_pred = self.model_results[best_baseline_name]['pred']
-            
-            from utils.metrics import calculate_wilcoxon_test
-            stat, p_val = calculate_wilcoxon_test(y_test, y_ens_pred, y_best_baseline_pred)
-            
-            conclusion = "SIGNIFICANT (p < 0.05)" if p_val < 0.05 else "NOT SIGNIFICANT (p >= 0.05)"
-            self.lbl_wilcoxon.configure(text=f"Wilcoxon Test vs Best Baseline ({best_baseline_name}): p-value = {p_val:.6f} ({conclusion})")
-            
-            # Enable diagnostic buttons
-            self.btn_residuals.configure(state="normal")
-            self.btn_correlation.configure(state="normal")
-            
-            messagebox.showinfo("Success", "Ensemble model evaluated and statistical tests completed.")
+            messagebox.showinfo("Success", "Ensemble model evaluated successfully.")
             
         except Exception as e:
             messagebox.showerror("Error", f"Ensemble failed: {e}")
@@ -145,40 +117,6 @@ class EnsembleTab(ctk.CTkFrame):
         self.canvas_error = FigureCanvasTkAgg(fig_error, master=self.error_canvas_frame)
         self.canvas_error.draw()
         self.canvas_error.get_tk_widget().pack(fill="both", expand=True)
-
-    def show_residuals(self):
-        if 'GWO Ensemble' not in self.model_results:
-            return
-        
-        _, _, _, y_test = self.data_processor.get_train_test_data()
-        y_ens_pred = self.model_results['GWO Ensemble']['pred']
-        
-        fig = Visualizer.plot_residuals(y_test, y_ens_pred)
-        
-        top = ctk.CTkToplevel(self)
-        top.title("Residual Analysis Diagnostics")
-        top.geometry("900x500")
-        
-        canvas = FigureCanvasTkAgg(fig, master=top)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill="both", expand=True)
-
-    def show_correlation(self):
-        if 'GWO Ensemble' not in self.model_results:
-            return
-            
-        _, _, _, y_test = self.data_processor.get_train_test_data()
-        y_ens_pred = self.model_results['GWO Ensemble']['pred']
-        
-        fig, _ = Visualizer.plot_actual_vs_predicted(y_test, y_ens_pred)
-        
-        top = ctk.CTkToplevel(self)
-        top.title("Correlation Scatter Plot")
-        top.geometry("600x600")
-        
-        canvas = FigureCanvasTkAgg(fig, master=top)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill="both", expand=True)
 
     def export_csv(self):
         if 'GWO Ensemble' not in self.model_results:
@@ -239,35 +177,48 @@ class EnsembleTab(ctk.CTkFrame):
                 # 1. Dataset Statistics
                 f.write("1. STATISTIK DESKRIPTIF DATASET\n")
                 f.write("-----------------------------------------\n")
+                
+                # Awal
                 stats = self.data_processor.get_stats()
                 if stats is not None:
+                    f.write(">>> DATASET AWAL <<<\n")
+                    if self.data_processor.raw_data is not None:
+                        f.write(f"Jumlah Baris & Kolom: {self.data_processor.raw_data.shape}\n")
+                        f.write("--- 10 Data Teratas (Head) ---\n")
+                        f.write(self.data_processor.raw_data.head(10).to_string())
+                        f.write("\n\n")
+                    f.write("--- Statistik Deskriptif ---\n")
                     f.write(stats.to_string())
+                    f.write("\n\n")
+                
+                # Preprocessed
+                if self.data_processor.df is not None:
+                    f.write(">>> DATASET HASIL PREPROCESS <<<\n")
+                    f.write(f"Jumlah Baris & Kolom: {self.data_processor.df.shape}\n")
+                    f.write("--- 10 Data Teratas (Head) ---\n")
+                    f.write(self.data_processor.df.head(10).to_string())
+                    f.write("\n\n")
+                    f.write("--- Statistik Deskriptif ---\n")
+                    f.write(self.data_processor.df.describe().to_string())
+                    f.write("\n\n")
+                
+                # Split
+                if self.data_processor.train_df is not None and self.data_processor.test_df is not None:
+                    f.write(">>> DATASET HASIL SPLIT <<<\n")
+                    f.write(f"Data Latih (Train) shape: {self.data_processor.train_df.shape}\n")
+                    f.write(f"Data Uji (Test) shape: {self.data_processor.test_df.shape}\n\n")
+                    f.write("--- Statistik Data Latih ---\n")
+                    f.write(self.data_processor.train_df.describe().to_string())
+                    f.write("\n\n--- Statistik Data Uji ---\n")
+                    f.write(self.data_processor.test_df.describe().to_string())
                     f.write("\n")
-                else:
+                
+                if stats is None and self.data_processor.df is None:
                     f.write("Data statistik tidak tersedia.\n")
                 f.write("\n")
 
-                # 2. ADF Test Results
-                f.write("2. UJI STASIONERITAS (AUGMENTED DICKEY-FULLER TEST)\n")
-                f.write("-----------------------------------------\n")
-                adf_res = getattr(self.data_processor, 'adf_results', None)
-                if adf_res is None and self.data_processor.df is not None:
-                    adf_res = self.data_processor.run_adf_test()
-                
-                if adf_res is not None:
-                    conclusion = "STATIONARY (Stasioner)" if adf_res['is_stationary'] else "NON-STATIONARY (Tidak Stasioner)"
-                    f.write(f"ADF Statistic: {adf_res['adf_stat']:.6f}\n")
-                    f.write(f"p-value: {adf_res['p_value']:.6e}\n")
-                    f.write(f"Conclusion: {conclusion}\n\n")
-                    f.write("Critical Values:\n")
-                    for k, v in adf_res['critical_values'].items():
-                        f.write(f"  {k}: {v:.6f}\n")
-                else:
-                    f.write("Uji ADF belum dijalankan atau data tidak tersedia.\n")
-                f.write("\n")
-
-                # 3. Model Baseline Performance
-                f.write("3. PERFORMA MODEL INDIVIDU (BASELINE)\n")
+                # 2. Model Baseline Performance
+                f.write("2. PERFORMA MODEL INDIVIDU (BASELINE)\n")
                 f.write("-----------------------------------------\n")
                 baselines = ['MA', 'ES', 'RNN']
                 for model_name in baselines:
@@ -280,12 +231,12 @@ class EnsembleTab(ctk.CTkFrame):
                         f.write(f"  RMSE: {m_res['RMSE']:.4f}\n")
                         f.write(f"  R2:   {m_res['R2']:.4f}\n\n")
                 
-                # 4. Metaheuristic Optimization Results & Stability
-                f.write("4. HASIL OPTIMASI & UJI KESTABILAN (GWO / PSO)\n")
+                # 3. Metaheuristic Optimization Results & Stability
+                f.write("3. HASIL OPTIMASI & UJI KESTABILAN (GWO)\n")
                 f.write("-----------------------------------------\n")
                 import os
                 found_stability = False
-                for short_name in ["GWO", "PSO"]:
+                for short_name in ["GWO"]:
                     stats_path = f"Analysis/Stability_Stats_{short_name}.txt"
                     if os.path.exists(stats_path):
                         found_stability = True
@@ -298,8 +249,8 @@ class EnsembleTab(ctk.CTkFrame):
                     f.write("Hasil pengujian stabilitas multi-run tidak ditemukan di folder Analysis/.\n")
                 f.write("\n")
 
-                # 5. Ensemble Model Comparison
-                f.write("5. PERBANDINGAN MODEL ENSEMBLE\n")
+                # 4. Ensemble Model Comparison
+                f.write("4. PERBANDINGAN MODEL ENSEMBLE\n")
                 f.write("-----------------------------------------\n")
                 ensembles = ['Equal Average', 'GWO Ensemble']
                 for model_name in ensembles:
@@ -312,32 +263,7 @@ class EnsembleTab(ctk.CTkFrame):
                         f.write(f"  RMSE: {m_res['RMSE']:.4f}\n")
                         f.write(f"  R2:   {m_res['R2']:.4f}\n\n")
                 
-                # 6. Wilcoxon Signed-Rank Test & Improvement
-                f.write("6. UJI PERBANDINGAN SIGNIFIKANSI STATISTIK\n")
-                f.write("-----------------------------------------\n")
-                if 'GWO Ensemble' in self.model_results:
-                    baselines_list = ['MA', 'ES', 'RNN']
-                    mapes = [self.model_results[b]['metrics']['MAPE'] for b in baselines_list if b in self.model_results]
-                    if mapes:
-                        best_baseline_name = baselines_list[np.argmin(mapes)]
-                        y_test = self.data_processor.test_df[self.data_processor.target_col]
-                        y_ens_pred = self.model_results['GWO Ensemble']['pred']
-                        y_best_baseline_pred = self.model_results[best_baseline_name]['pred']
-                        
-                        from utils.metrics import calculate_wilcoxon_test
-                        stat, p_val = calculate_wilcoxon_test(y_test, y_ens_pred, y_best_baseline_pred)
-                        conclusion = "SIGNIFICANT (p < 0.05)" if p_val < 0.05 else "NOT SIGNIFICANT (p >= 0.05)"
-                        
-                        best_mape = self.model_results[best_baseline_name]['metrics']['MAPE']
-                        ens_mape = self.model_results['GWO Ensemble']['metrics']['MAPE']
-                        improvement = ((best_mape - ens_mape) / best_mape) * 100
-                        
-                        f.write(f"Perbandingan: Ensemble vs Best Baseline ({best_baseline_name})\n")
-                        f.write(f"  Akurasi Improvement: {improvement:.2f}%\n")
-                        f.write(f"  Wilcoxon Test Statistic: {stat:.4f}\n")
-                        f.write(f"  Wilcoxon Test p-value:   {p_val:.6f}\n")
-                        f.write(f"  Kesimpulan Uji Statistik:  {conclusion}\n")
-                
+
                 f.write("\n=========================================================================\n")
                 f.write("                        AKHIR DARI LAPORAN EKSPERIMEN                    \n")
                 f.write("=========================================================================\n")

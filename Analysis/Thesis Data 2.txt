@@ -56,7 +56,6 @@ min              2013-01-01 00:00:00     0.000000
 max              2017-08-15 00:00:00     1.000000
 std                              NaN     0.180004
 
-
 >>> DATASET HASIL SPLIT <<<
 Data Latih (Train) shape: (1347, 2)
 Data Uji (Test) shape: (337, 2)
@@ -86,25 +85,25 @@ std                              NaN    0.140999
 2. PERFORMA MODEL INDIVIDU (BASELINE)
 -----------------------------------------
 Model: MA
-  MAPE: 38.9113%
-  MAE:  151314.0604
-  MSE:  33707620657.2235
-  RMSE: 183596.3525
+  MAPE: 44.4608%
+  MAE:  0.1165
+  MSE:  0.0200
+  RMSE: 0.1414
   R2:   -0.0089
 
 Model: ES
-  MAPE: 39.7326%
-  MAE:  138707.1492
-  MSE:  30230164041.1188
-  RMSE: 173868.2376
-  R2:   0.0952
+  MAPE: 46.4116%
+  MAE:  0.1074
+  MSE:  0.0183
+  RMSE: 0.1352
+  R2:   0.0783
 
 Model: RNN
-  MAPE: 34.8779%
-  MAE:  172491.8659
-  MSE:  53414820739.7034
-  RMSE: 231116.4657
-  R2:   -0.5988
+  MAPE: 38.6348%
+  MAE:  0.1199
+  MSE:  0.0272
+  RMSE: 0.1650
+  R2:   -0.3735
 
 3. HASIL OPTIMASI & UJI KESTABILAN (GWO)
 -----------------------------------------
@@ -165,18 +164,18 @@ Runs Performance Details Table:
 4. PERBANDINGAN MODEL ENSEMBLE
 -----------------------------------------
 Model: Equal Average
-  MAPE: 35.4000%
-  MAE:  134689.0116
-  MSE:  30903354783.1672
-  RMSE: 175793.5004
-  R2:   0.0750
+  MAPE: 41.4994%
+  MAE:  0.1041
+  MSE:  0.0178
+  RMSE: 0.1335
+  R2:   0.1010
 
 Model: GWO Ensemble
-  MAPE: 33.7161%
-  MAE:  145220.0475
-  MSE:  40516759625.1393
-  RMSE: 201287.7533
-  R2:   -0.2127
+  MAPE: 38.5115%
+  MAE:  0.1145
+  MSE:  0.0252
+  RMSE: 0.1588
+  R2:   -0.2729
 
 
 =========================================================================

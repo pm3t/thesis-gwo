@@ -25,12 +25,9 @@ class GWOTab(ctk.CTkFrame):
         self.left_frame = ctk.CTkScrollableFrame(self, label_text="Parameters & Controls")
         self.left_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        ctk.CTkLabel(self.left_frame, text="Select Optimizer:").pack(pady=(5, 0))
-        self.combo_optimizer = ctk.CTkComboBox(self.left_frame, values=["Grey Wolf Optimizer (GWO)", "Particle Swarm Optimization (PSO)"])
-        self.combo_optimizer.pack(pady=5)
-        self.combo_optimizer.set("Grey Wolf Optimizer (GWO)")
+        ctk.CTkLabel(self.left_frame, text="Optimizer: Grey Wolf Optimizer (GWO)", font=ctk.CTkFont(weight="bold")).pack(pady=(5, 10))
 
-        ctk.CTkLabel(self.left_frame, text="Population Size (n_wolves/particles):").pack(pady=(10, 0))
+        ctk.CTkLabel(self.left_frame, text="Population Size (n_wolves):").pack(pady=(10, 0))
         self.entry_pop = ctk.CTkEntry(self.left_frame, placeholder_text="20")
         self.entry_pop.pack(pady=5)
         self.entry_pop.insert(0, "20")
@@ -150,8 +147,8 @@ class GWOTab(ctk.CTkFrame):
         y_pred_es = self.model_results['ES']['pred']
         y_pred_rnn = self.model_results['RNN']['pred']
 
-        optimizer_name = self.combo_optimizer.get()
-        short_name = "GWO" if "Grey Wolf" in optimizer_name else "PSO"
+        optimizer_name = "Grey Wolf Optimizer (GWO)"
+        short_name = "GWO"
 
         try:
             n_wolves = int(self.entry_pop.get())
@@ -180,12 +177,8 @@ class GWOTab(ctk.CTkFrame):
                     self.btn_run.configure(text=f"Running {run+1}/{n_runs}...")
                     self.update()
 
-                    if "Grey Wolf" in optimizer_name:
-                        from optimizers.gwo import GreyWolfOptimizer
-                        opt = GreyWolfOptimizer(n_wolves=n_wolves, max_iter=max_iter)
-                    else:
-                        from optimizers.pso import ParticleSwarmOptimizer
-                        opt = ParticleSwarmOptimizer(n_particles=n_wolves, max_iter=max_iter)
+                    from optimizers.gwo import GreyWolfOptimizer
+                    opt = GreyWolfOptimizer(n_wolves=n_wolves, max_iter=max_iter)
 
                     w, conv, pos_hist = opt.optimize(y_test, y_pred_ma, y_pred_es, y_pred_rnn)
                     run_best_fitness = conv[-1]
@@ -230,7 +223,7 @@ class GWOTab(ctk.CTkFrame):
                 std_w = np.std(all_weights, axis=0)
 
                 # Format stability runs as an ASCII table
-                n_header = "n (wolf)" if "GWO" in short_name else "n (particle)"
+                n_header = "n (wolf)"
                 table_lines = []
                 table_lines.append(f"| Run | {n_header:<8} | iteration |   MAPE (%)   |      w1      |      w2      |      w3      |")
                 table_lines.append(f"|-----|{'-'*10}|-----------|--------------|--------------|--------------|--------------|")
@@ -295,19 +288,7 @@ class GWOTab(ctk.CTkFrame):
                         start_marker = f">>> STATISTIK KESTABILAN {short_name} (30 RUNS) <<<"
                         start_idx = report_content.find(start_marker)
                         if start_idx != -1:
-                            end_idx = -1
-                            markers = [
-                                ">>> STATISTIK KESTABILAN PSO (30 RUNS) <<<",
-                                ">>> STATISTIK KESTABILAN GWO (30 RUNS) <<<",
-                                "5. PERBANDINGAN MODEL ENSEMBLE"
-                            ]
-                            for marker in markers:
-                                if marker != start_marker:
-                                    pos = report_content.find(marker, start_idx + len(start_marker))
-                                    if pos != -1:
-                                        if end_idx == -1 or pos < end_idx:
-                                            end_idx = pos
-                            
+                            end_idx = report_content.find("4. PERBANDINGAN MODEL ENSEMBLE", start_idx)
                             if end_idx != -1:
                                 updated_report = report_content[:start_idx] + start_marker + "\n" + new_stats_text + "\n\n" + report_content[end_idx:]
                             else:
@@ -329,12 +310,8 @@ class GWOTab(ctk.CTkFrame):
 
             else:
                 # Single run
-                if "Grey Wolf" in optimizer_name:
-                    from optimizers.gwo import GreyWolfOptimizer
-                    opt = GreyWolfOptimizer(n_wolves=n_wolves, max_iter=max_iter)
-                else:
-                    from optimizers.pso import ParticleSwarmOptimizer
-                    opt = ParticleSwarmOptimizer(n_particles=n_wolves, max_iter=max_iter)
+                from optimizers.gwo import GreyWolfOptimizer
+                opt = GreyWolfOptimizer(n_wolves=n_wolves, max_iter=max_iter)
 
                 best_weights, convergence, positions_history = opt.optimize(
                     y_test, y_pred_ma, y_pred_es, y_pred_rnn
@@ -423,7 +400,7 @@ class GWOTab(ctk.CTkFrame):
         for widget in self.table_frame.winfo_children():
             widget.destroy()
 
-        n_header = "n (wolf)" if "GWO" in short_name else "n (particle)"
+        n_header = "n (wolf)"
         headers = ["Run", n_header, "iteration", "MAPE", "w1", "w2", "w3"]
         
         # Configure columns of the table frame to expand/space evenly

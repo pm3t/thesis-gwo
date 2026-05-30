@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 
 class DataProcessor:
     def __init__(self):
@@ -9,6 +10,7 @@ class DataProcessor:
         self.test_df = None
         self.date_col = None
         self.target_col = None
+        self.scaler = None
 
     def load_csv(self, file_path):
         """
@@ -78,6 +80,11 @@ class DataProcessor:
                 df_train[target_col] = df_train[target_col].clip(lower_bound, upper_bound)
                 df_test[target_col] = df_test[target_col].clip(lower_bound, upper_bound)
                 
+            # Global Normalization
+            self.scaler = MinMaxScaler()
+            df_train[target_col] = self.scaler.fit_transform(df_train[[target_col]]).flatten()
+            df_test[target_col] = self.scaler.transform(df_test[[target_col]]).flatten()
+            
             self.train_df = df_train
             self.test_df = df_test
             self.df = pd.concat([df_train, df_test], ignore_index=True)
@@ -102,6 +109,10 @@ class DataProcessor:
                 upper_bound = q3 + 1.5 * iqr
                 df[target_col] = df[target_col].clip(lower_bound, upper_bound)
                 
+            # Global Normalization
+            self.scaler = MinMaxScaler()
+            df[target_col] = self.scaler.fit_transform(df[[target_col]]).flatten()
+            
             self.df = df
             return df
 
