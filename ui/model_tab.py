@@ -1,11 +1,97 @@
 import customtkinter as ctk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 from models.moving_average import MovingAverageModel
 from models.exponential_smoothing import ExponentialSmoothingModel
 from models.simple_rnn import SimpleRNNModel
 from utils.metrics import get_metrics
 from ui.widgets import MetricTable
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+
+class PredictionPlotWindow(ctk.CTkToplevel):
+    def __init__(self, master, title, dates, y_true, y_pred, color):
+        super().__init__(master)
+        self.title(title)
+        self.geometry("700x600+50+150")  # Positioned on the left, slightly taller for the button
+        
+        self.lift()
+        self.focus_force()
+        
+        # Build Matplotlib figure
+        self.fig, ax = plt.subplots(figsize=(7, 4.8), dpi=100)
+        ax.plot(dates, y_true, label="Data Uji", color="#2d2d2d", linewidth=2)
+        ax.plot(dates, y_pred, label="Prediksi", color=color, linewidth=2)
+        
+        ax.set_title(title, fontsize=14, fontweight="bold")
+        ax.set_xlabel("date", fontsize=11)
+        ax.set_ylabel("sales", fontsize=11)
+        ax.grid(True, linestyle=":", alpha=0.6)
+        ax.legend(loc="lower left", fontsize=12, framealpha=0.8, edgecolor="#cccccc")
+        plt.tight_layout()
+        
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Save Button
+        self.btn_save = ctk.CTkButton(self, text="Save Plot", command=self.save_plot)
+        self.btn_save.pack(pady=(0, 10))
+
+    def save_plot(self):
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("JPG files", "*.jpg")]
+        )
+        if file_path:
+            try:
+                self.fig.savefig(file_path)
+                messagebox.showinfo("Success", f"Plot saved to {file_path}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save plot: {e}")
+
+
+class RNNLossPlotWindow(ctk.CTkToplevel):
+    def __init__(self, master, loss_history):
+        super().__init__(master)
+        self.title("Kurva Training Loss RNN")
+        self.geometry("700x550+800+150")  # Positioned on the right, slightly taller for the button
+        
+        self.lift()
+        self.focus_force()
+        
+        # Build Matplotlib figure
+        self.fig, ax = plt.subplots(figsize=(7, 4.3), dpi=100)
+        epochs = range(1, len(loss_history) + 1)
+        ax.plot(epochs, loss_history, label="Training Loss", color="#ff5b60", linewidth=2.5)
+        
+        ax.set_title("Kurva Training Loss RNN", fontsize=14, fontweight="bold")
+        ax.set_xlabel("Epoch", fontsize=11)
+        ax.set_ylabel("Loss (MSE)", fontsize=11)
+        ax.grid(True, linestyle=":", alpha=0.6)
+        ax.legend(loc="upper right", fontsize=12, framealpha=0.8, edgecolor="#cccccc")
+        plt.tight_layout()
+        
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Save Button
+        self.btn_save = ctk.CTkButton(self, text="Save Plot", command=self.save_plot)
+        self.btn_save.pack(pady=(0, 10))
+
+    def save_plot(self):
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("JPG files", "*.jpg")]
+        )
+        if file_path:
+            try:
+                self.fig.savefig(file_path)
+                messagebox.showinfo("Success", f"Plot saved to {file_path}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save plot: {e}")
 
 
 class ModelTab(ctk.CTkFrame):
@@ -44,15 +130,15 @@ class ModelTab(ctk.CTkFrame):
 
         self.lbl_rnn_lookback = ctk.CTkLabel(self.rnn_frame, text="Lookback (timesteps):")
         self.lbl_rnn_lookback.pack(pady=(10, 0))
-        self.entry_rnn_lookback = ctk.CTkEntry(self.rnn_frame, placeholder_text="7")
+        self.entry_rnn_lookback = ctk.CTkEntry(self.rnn_frame, placeholder_text="40")
         self.entry_rnn_lookback.pack(pady=5)
-        self.entry_rnn_lookback.insert(0, "7")
+        self.entry_rnn_lookback.insert(0, "40")
 
         self.lbl_rnn_epochs = ctk.CTkLabel(self.rnn_frame, text="Epochs:")
         self.lbl_rnn_epochs.pack(pady=(5, 0))
-        self.entry_rnn_epochs = ctk.CTkEntry(self.rnn_frame, placeholder_text="50")
+        self.entry_rnn_epochs = ctk.CTkEntry(self.rnn_frame, placeholder_text="100")
         self.entry_rnn_epochs.pack(pady=5)
-        self.entry_rnn_epochs.insert(0, "50")
+        self.entry_rnn_epochs.insert(0, "100")
 
         self.rnn_metrics = MetricTable(self.rnn_frame)
         self.rnn_metrics.pack(fill="x", padx=10, pady=10)
@@ -79,7 +165,7 @@ class ModelTab(ctk.CTkFrame):
 
     # ─────────────────────────────────────────────────────────────────────
     def train_ma(self):
-        _, y_train, _, y_test = self.get_data()
+        _, y_train, x_test, y_test = self.get_data()
         if y_train is None:
             return
             
@@ -100,6 +186,15 @@ class ModelTab(ctk.CTkFrame):
                 'metrics': metrics,
             }
             messagebox.showinfo("Success", "MA Model completed.")
+            # Show prediction plot window
+            PredictionPlotWindow(
+                self, 
+                title="Prediksi MA vs Data Uji", 
+                dates=x_test, 
+                y_true=y_test, 
+                y_pred=test_preds, 
+                color="#4e94ff"
+            )
         except Exception as e:
             messagebox.showerror("Error", str(e))
         finally:
@@ -107,7 +202,7 @@ class ModelTab(ctk.CTkFrame):
             self.update()
 
     def train_es(self):
-        _, y_train, _, y_test = self.get_data()
+        _, y_train, x_test, y_test = self.get_data()
         if y_train is None:
             return
             
@@ -128,6 +223,15 @@ class ModelTab(ctk.CTkFrame):
                 'metrics': metrics,
             }
             messagebox.showinfo("Success", "ES Model completed.")
+            # Show prediction plot window
+            PredictionPlotWindow(
+                self, 
+                title="Prediksi ES vs Data Uji", 
+                dates=x_test, 
+                y_true=y_test, 
+                y_pred=test_preds, 
+                color="#ffa500"
+            )
         except Exception as e:
             messagebox.showerror("Error", str(e))
         finally:
@@ -135,7 +239,7 @@ class ModelTab(ctk.CTkFrame):
             self.update()
 
     def train_rnn(self):
-        _, y_train, _, y_test = self.get_data()
+        _, y_train, x_test, y_test = self.get_data()
         if y_train is None:
             return
             
@@ -158,6 +262,18 @@ class ModelTab(ctk.CTkFrame):
                 'metrics': metrics,
             }
             messagebox.showinfo("Success", "RNN Model completed.")
+            # Show prediction plot window
+            PredictionPlotWindow(
+                self, 
+                title="Prediksi RNN vs Data Uji", 
+                dates=x_test, 
+                y_true=y_test, 
+                y_pred=test_preds, 
+                color="#2ecc71"
+            )
+            # Show RNN training loss window
+            if hasattr(model, 'loss_history') and model.loss_history is not None:
+                RNNLossPlotWindow(self, loss_history=model.loss_history)
         except Exception as e:
             messagebox.showerror("Error", str(e))
         finally:

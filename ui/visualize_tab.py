@@ -22,7 +22,7 @@ class VisualizeTab(ctk.CTkFrame):
         self.lbl_plot = ctk.CTkLabel(self.ctrl_frame, text="Select Plot Type:")
         self.lbl_plot.pack(side="left", padx=10)
         
-        self.combo_plot = ctk.CTkComboBox(self.ctrl_frame, values=["Time Series Plot", "Decomposition Plot", "Distribution Plot"])
+        self.combo_plot = ctk.CTkComboBox(self.ctrl_frame, values=["Time Series Plot", "Split Data Plot", "Decomposition Plot", "Distribution Plot"])
         self.combo_plot.pack(side="left", padx=10)
         
         self.btn_plot = ctk.CTkButton(self.ctrl_frame, text="Generate Plot", command=self.generate_plot)
@@ -53,6 +53,26 @@ class VisualizeTab(ctk.CTkFrame):
         try:
             if plot_type == "Time Series Plot":
                 self.fig, self.ax = Visualizer.plot_time_series(dates, values)
+            elif plot_type == "Split Data Plot":
+                train_df = self.data_processor.train_df
+                test_df = self.data_processor.test_df
+                if train_df is None or test_df is None:
+                    messagebox.showwarning("Warning", "Please split the data in the DATA tab first.")
+                    return
+                
+                date_col = self.data_processor.date_col
+                target_col = self.data_processor.target_col
+                
+                train_dates = train_df[date_col]
+                train_vals = train_df[target_col]
+                test_dates = test_df[date_col]
+                test_vals = test_df[target_col]
+                
+                self.fig, self.ax = Visualizer.plot_split_data(
+                    train_dates, train_vals, 
+                    test_dates, test_vals,
+                    xlabel=date_col, ylabel=target_col
+                )
             elif plot_type == "Decomposition Plot":
                 df = self.data_processor.df
                 date_col = self.data_processor.date_col

@@ -1,6 +1,0 @@
-@echo off
-echo Mengaktifkan Virtual Environment...
-call .venv\Scripts\activate
-echo Menjalankan Aplikasi Peramalan...
-python main.py
-pause

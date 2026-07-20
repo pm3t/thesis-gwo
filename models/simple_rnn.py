@@ -26,6 +26,7 @@ class SimpleRNNModel:
         self.scaler = MinMaxScaler(feature_range=(0, 1))
         self.model = None
         self._last_sequence = None  # window terakhir untuk forecasting
+        self.loss_history = None
 
     # ─────────────────────────────────────────────────────────────────────
     # Internal helpers
@@ -73,7 +74,7 @@ class SimpleRNNModel:
         X = X.reshape(X.shape[0], X.shape[1], 1)
 
         self.model = self._build_model()
-        self.model.fit(
+        history = self.model.fit(
             X, Y,
             epochs=self.epochs,
             batch_size=self.batch_size,
@@ -83,6 +84,7 @@ class SimpleRNNModel:
 
         # Simpan window terakhir untuk forecasting iteratif
         self._last_sequence = y_scaled[-self.lookback:].copy()
+        self.loss_history = history.history['loss']
         return self
 
     def forecast(self, steps: int) -> np.ndarray:

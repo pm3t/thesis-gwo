@@ -215,12 +215,26 @@ class GWOTab(ctk.CTkFrame):
                 all_weights = np.array(all_weights)
 
                 best_fit = np.min(all_fitness)
-                worst_fit = np.max(all_fitness)
+                worst_idx = np.argmax(all_fitness)
+                worst_fit = all_fitness[worst_idx]
+                worst_weights = all_weights[worst_idx]
+                
                 mean_fit = np.mean(all_fitness)
                 std_fit = np.std(all_fitness)
 
                 avg_w = np.mean(all_weights, axis=0)
                 std_w = np.std(all_weights, axis=0)
+
+                # Format Ringkasan Parameter Statistik Optimasi
+                summary_table_lines = [
+                    "| Parameter Statistik | Nilai Fitness (MAPE) | Bobot w1 (MA) | Bobot w2 (ES) | Bobot w3 (RNN) |",
+                    "|---------------------|----------------------|---------------|---------------|----------------|",
+                    f"| Terbaik             | {best_fit:19.6f}% | {best_weights[0]:13.6f} | {best_weights[1]:13.6f} | {best_weights[2]:14.6f} |",
+                    f"| Terburuk            | {worst_fit:19.6f}% | {worst_weights[0]:13.6f} | {worst_weights[1]:13.6f} | {worst_weights[2]:14.6f} |",
+                    f"| Rata-rata           | {mean_fit:19.6f}% | {avg_w[0]:13.6f} | {avg_w[1]:13.6f} | {avg_w[2]:14.6f} |",
+                    f"| Std. Deviation      | {std_fit:19.6f}% | {std_w[0]:13.6f} | {std_w[1]:13.6f} | {std_w[2]:14.6f} |"
+                ]
+                summary_table_str = "\n".join(summary_table_lines)
 
                 # Format stability runs as an ASCII table
                 n_header = "n (wolf)"
@@ -242,6 +256,10 @@ class GWOTab(ctk.CTkFrame):
                     f.write(f"Worst Fitness (MAPE): {worst_fit:.6f}%\n")
                     f.write(f"Mean Fitness (MAPE): {mean_fit:.6f}%\n")
                     f.write(f"Standard Deviation (MAPE): {std_fit:.6f}%\n\n")
+                    
+                    f.write(f"RINGKASAN PARAMETER STATISTIK OPTIMASI:\n")
+                    f.write(f"{summary_table_str}\n\n")
+                    
                     f.write(f"Best Run Weights:\n")
                     f.write(f"  w1 (MA): {best_weights[0]:.6f}\n")
                     f.write(f"  w2 (ES): {best_weights[1]:.6f}\n")
