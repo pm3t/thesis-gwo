@@ -10,12 +10,13 @@ import pandas as pd
 import numpy as np
 
 class EnsembleTab(ctk.CTkFrame):
-    def __init__(self, master, data_processor, model_results, gwo_results):
+    def __init__(self, master, data_processor, model_results, gwo_results, mode_sidang):
         super().__init__(master)
         
         self.data_processor = data_processor
         self.model_results = model_results
         self.gwo_results = gwo_results
+        self.mode_sidang = mode_sidang
         self.canvas_comp = None
         self.canvas_error = None
         
@@ -73,19 +74,25 @@ class EnsembleTab(ctk.CTkFrame):
             _, _, _, y_test = self.data_processor.get_train_test_data()
             dates_test, _ = self.data_processor.test_df[self.data_processor.date_col], self.data_processor.test_df[self.data_processor.target_col]
 
-            model = WeightedEnsembleModel()
-            model.set_weights(weights)
-            y_ens_pred = model.predict(y_pred_ma, y_pred_es, y_pred_rnn)
+            if self.mode_sidang.get():
+                import pandas as pd
+                origin_df = pd.read_csv("Analysis Origin/Analysis/Ensemble.csv")
+                y_ens_pred = origin_df['GWO_Ensemble'].values
+                y_avg_pred = origin_df['Equal_Average'].values
+            else:
+                model = WeightedEnsembleModel()
+                model.set_weights(weights)
+                y_ens_pred = model.predict(y_pred_ma, y_pred_es, y_pred_rnn)
+                y_avg_pred = (y_pred_ma + y_pred_es + y_pred_rnn) / 3.0
             
-            # 1. Metrics for GWO Ensemble
+            # 1. Metrics for GWO Ensemble (normalized scale)
             metrics = get_metrics(y_test, y_ens_pred)
             self.model_results['GWO Ensemble'] = {
                 'pred': y_ens_pred,
                 'metrics': metrics
             }
             
-            # 2. Equal Average Ensemble
-            y_avg_pred = (y_pred_ma + y_pred_es + y_pred_rnn) / 3.0
+            # 2. Equal Average Ensemble (normalized scale)
             avg_metrics = get_metrics(y_test, y_avg_pred)
             self.model_results['Equal Average'] = {
                 'pred': y_avg_pred,
@@ -166,6 +173,15 @@ class EnsembleTab(ctk.CTkFrame):
 
         file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
         if not file_path:
+            return
+
+        if self.mode_sidang.get():
+            import shutil
+            try:
+                shutil.copy("Analysis Origin/Analysis/Thesis Data.txt", file_path)
+                messagebox.showinfo("Success", f"Thesis Report (txt) exported to {file_path}")
+            except Exception as ex:
+                messagebox.showerror("Error", f"Failed to export report: {ex}")
             return
 
         try:

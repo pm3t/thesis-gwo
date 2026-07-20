@@ -1,0 +1,11 @@
+Optimal Weights Found by GWO:
+w1 (Moving Average): 0.315732
+w2 (Exponential Smoothing): 0.000000
+w3 (Simple RNN): 0.684268
+
+Model Performance (MAPE):
+MA: 44.4608%
+ES: 46.4116%
+RNN: 41.3504%
+GWO Ensemble: 40.0924%
+Equal Average: 41.9113%

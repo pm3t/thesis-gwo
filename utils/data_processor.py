@@ -175,3 +175,12 @@ class DataProcessor:
             'critical_values': crit_values,
             'is_stationary': is_stationary
         }
+
+    def inverse_transform(self, y):
+        """
+        Inverse transform a 1D array/series using the global MinMaxScaler.
+        """
+        if self.scaler is None or y is None:
+            return y
+        y_arr = np.array(y).reshape(-1, 1)
+        return self.scaler.inverse_transform(y_arr).flatten()
