@@ -1,11 +1,11 @@
 Optimal Weights Found by GWO:
-w1 (Moving Average): 0.639194
-w2 (Exponential Smoothing): 0.360806
-w3 (Linear Regression): 0.000000
+w1 (Moving Average): 0.668612
+w2 (Exponential Smoothing): 0.000000
+w3 (Linear Regression): 0.331388
 
 Model Performance (MAPE):
-MA: 38.9591%
-ES: 39.8066%
-LR: 42.3416%
-GWO Ensemble: 38.5705%
-Equal Average: 39.7211%
+MA: 24.9202%
+ES: 22.4816%
+LR: 29.0979%
+GWO Ensemble: 20.8205%
+Equal Average: 21.4333%

@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 from optimizers.gwo import GreyWolfOptimizer
 from utils.visualizer import Visualizer
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -8,13 +8,12 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 
 class GWOTab(ctk.CTkFrame):
-    def __init__(self, master, data_processor, model_results, gwo_results, mode_sidang):
+    def __init__(self, master, data_processor, model_results, gwo_results):
         super().__init__(master)
         
         self.data_processor = data_processor
         self.model_results = model_results
         self.gwo_results = gwo_results  # { 'best_weights': [], 'convergence': [] }
-        self.mode_sidang = mode_sidang
         self.canvas = None
 
         # Configure grid
@@ -46,7 +45,14 @@ class GWOTab(ctk.CTkFrame):
             self.left_frame, text="Run Optimization",
             command=self.run_optimization
         )
-        self.btn_run.pack(pady=10)
+        self.btn_run.pack(pady=5)
+
+        self.btn_export_plot = ctk.CTkButton(
+            self.left_frame, text="Export Convergence Plot",
+            command=self.export_plot,
+            fg_color="#2b5b84", hover_color="#1f3f5e"
+        )
+        self.btn_export_plot.pack(pady=5)
 
         # Results section
         ctk.CTkLabel(
@@ -58,7 +64,7 @@ class GWOTab(ctk.CTkFrame):
         self.lbl_w1.pack(pady=2)
         self.lbl_w2 = ctk.CTkLabel(self.left_frame, text="w2 (ES): -")
         self.lbl_w2.pack(pady=2)
-        self.lbl_w3 = ctk.CTkLabel(self.left_frame, text="w3 (RNN): -")
+        self.lbl_w3 = ctk.CTkLabel(self.left_frame, text="w3 (LR): -")
         self.lbl_w3.pack(pady=2)
 
         self.lbl_best_fitness = ctk.CTkLabel(
@@ -127,11 +133,29 @@ class GWOTab(ctk.CTkFrame):
 
     def _embed_figure(self, fig):
         """Destroy previous canvas and embed a new one."""
+        self.current_fig = fig
         if self.canvas is not None:
             self.canvas.get_tk_widget().destroy()
         self.canvas = FigureCanvasTkAgg(fig, master=self.canvas_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
+
+    def export_plot(self):
+        """Export current convergence plot to image file."""
+        if not hasattr(self, 'current_fig') or self.current_fig is None:
+            messagebox.showwarning("Warning", "Belum ada grafik convergence untuk diekspor.")
+            return
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("JPG files", "*.jpg"), ("PDF files", "*.pdf")]
+        )
+        if file_path:
+            try:
+                self.current_fig.savefig(file_path, dpi=300, bbox_inches='tight')
+                messagebox.showinfo("Success", f"Grafik convergence berhasil disimpan ke {file_path}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Gagal menyimpan grafik: {e}")
 
     # ─────────────────────────────────────────────────────────────────────────
     # Optimization
@@ -139,14 +163,14 @@ class GWOTab(ctk.CTkFrame):
     # Optimization
     # ─────────────────────────────────────────────────────────────────────────
     def run_optimization(self):
-        if not all(k in self.model_results for k in ['MA', 'ES', 'RNN']):
+        if not all(k in self.model_results for k in ['MA', 'ES', 'LR']):
             messagebox.showwarning("Warning", "Please run all three baseline models first.")
             return
 
         _, _, _, y_test = self.data_processor.get_train_test_data()
         y_pred_ma = self.model_results['MA']['pred']
         y_pred_es = self.model_results['ES']['pred']
-        y_pred_rnn = self.model_results['RNN']['pred']
+        y_pred_lr = self.model_results['LR']['pred']
 
         optimizer_name = "Grey Wolf Optimizer (GWO)"
         short_name = "GWO"
@@ -159,76 +183,7 @@ class GWOTab(ctk.CTkFrame):
             import pandas as pd
             os.makedirs("Analysis", exist_ok=True)
 
-            if self.mode_sidang.get():
-                # Mode Sidang: Load pre-run results from Analysis Origin
-                best_weights = np.array([0.315732, 0.000000, 0.684268])
-                
-                # Check if multi-run
-                if self.var_multirun.get():
-                    import shutil
-                    shutil.copy("Analysis Origin/Analysis/Stability_Stats_GWO.txt", "Analysis/Stability_Stats_GWO.txt")
-                    shutil.copy("Analysis Origin/Analysis/Stability_Runs_GWO.csv", "Analysis/Stability_Runs_GWO.csv")
-                    
-                    runs_df = pd.read_csv("Analysis/Stability_Runs_GWO.csv")
-                    run_results = runs_df.to_dict('records')
-                    
-                    best_fit = 40.092401
-                    worst_fit = 40.092441
-                    mean_fit = 40.092405
-                    std_fit = 0.000008
-                    
-                    self.lbl_w1.configure(text=f"w1 (MA): {best_weights[0]:.4f}")
-                    self.lbl_w2.configure(text=f"w2 (ES): {best_weights[1]:.4f}")
-                    self.lbl_w3.configure(text=f"w3 (RNN): {best_weights[2]:.4f}")
-                    self.lbl_best_fitness.configure(text=f"Best Fitness (MAPE): {best_fit:.4f}%")
-                    
-                    self.lbl_worst_fitness.configure(text=f"Worst Fitness (MAPE): {worst_fit:.4f}%")
-                    self.lbl_mean_fitness.configure(text=f"Mean Fitness (MAPE): {mean_fit:.4f}%")
-                    self.lbl_std_fitness.configure(text=f"Std Dev (MAPE): {std_fit:.6f}%")
-                    
-                    self.gwo_results['best_weights'] = best_weights
-                    self.gwo_results['optimizer_name'] = short_name
-                    
-                    best_conv_df = pd.read_csv("Analysis Origin/Analysis/Convergence_Data_GWO.csv")
-                    best_convergence = best_conv_df['Best_Fitness_MAPE'].values.tolist()
-                    self.gwo_results['convergence'] = best_convergence
-                    
-                    shutil.copy("Analysis Origin/Analysis/Convergence_Data_GWO.csv", "Analysis/Convergence_Data_GWO.csv")
-                    self.update_stability_table(run_results, short_name)
-                    messagebox.showinfo("Success", f"Multi-run {short_name} loaded from thesis results.")
-                
-                else:
-                    import shutil
-                    shutil.copy("Analysis Origin/Analysis/Convergence_Data_GWO.csv", "Analysis/Convergence_Data_GWO.csv")
-                    
-                    best_conv_df = pd.read_csv("Analysis/Convergence_Data_GWO.csv")
-                    convergence = best_conv_df['Best_Fitness_MAPE'].values.tolist()
-                    
-                    self.gwo_results['best_weights'] = best_weights
-                    self.gwo_results['convergence'] = convergence
-                    self.gwo_results['optimizer_name'] = short_name
-                    
-                    self.lbl_w1.configure(text=f"w1 (MA): {best_weights[0]:.4f}")
-                    self.lbl_w2.configure(text=f"w2 (ES): {best_weights[1]:.4f}")
-                    self.lbl_w3.configure(text=f"w3 (RNN): {best_weights[2]:.4f}")
-                    self.lbl_best_fitness.configure(text=f"Best Fitness (MAPE): {convergence[-1]:.4f}%")
-                    
-                    self.lbl_worst_fitness.configure(text="Worst Fitness (MAPE): -")
-                    self.lbl_mean_fitness.configure(text="Mean Fitness (MAPE): -")
-                    self.lbl_std_fitness.configure(text="Std Dev (MAPE): -")
-                    
-                    for widget in self.table_frame.winfo_children():
-                        widget.destroy()
-                    self.placeholder_lbl = ctk.CTkLabel(self.table_frame, text="Run 30x (Stability Analysis) to see run-by-run metrics.")
-                    self.placeholder_lbl.pack(pady=20)
-                    
-                    messagebox.showinfo("Success", f"Single run {short_name} loaded from thesis results.")
-                    
-                self._plot_static_convergence(self.gwo_results['convergence'])
-
-            else:
-                # Standard optimization (Mode Sidang OFF, runs on normalized scale)
-                if self.var_multirun.get():
+            if self.var_multirun.get():
                     n_runs = 30
                     all_fitness = []
                     all_weights = []
@@ -250,7 +205,7 @@ class GWOTab(ctk.CTkFrame):
                         from optimizers.gwo import GreyWolfOptimizer
                         opt = GreyWolfOptimizer(n_wolves=n_wolves, max_iter=max_iter)
 
-                        w, conv, pos_hist = opt.optimize(y_test, y_pred_ma, y_pred_es, y_pred_rnn)
+                        w, conv, pos_hist = opt.optimize(y_test, y_pred_ma, y_pred_es, y_pred_lr)
                         run_best_fitness = conv[-1]
 
                         all_fitness.append(run_best_fitness)
@@ -267,7 +222,7 @@ class GWOTab(ctk.CTkFrame):
                         w_arr = np.array(w)
                         if np.sum(w_arr) > 0:
                             w_arr = w_arr / np.sum(w_arr)
-                        y_ens_pred = w_arr[0] * y_pred_ma + w_arr[1] * y_pred_es + w_arr[2] * y_pred_rnn
+                        y_ens_pred = w_arr[0] * y_pred_ma + w_arr[1] * y_pred_es + w_arr[2] * y_pred_lr
                         metrics = get_metrics(y_test, y_ens_pred)
 
                         run_results.append({
@@ -297,7 +252,7 @@ class GWOTab(ctk.CTkFrame):
 
                     # Format Ringkasan Parameter Statistik Optimasi
                     summary_table_lines = [
-                        "| Parameter Statistik | Nilai Fitness (MAPE) | Bobot w1 (MA) | Bobot w2 (ES) | Bobot w3 (RNN) |",
+                        "| Parameter Statistik | Nilai Fitness (MAPE) | Bobot w1 (MA) | Bobot w2 (ES) | Bobot w3 (LR) |",
                         "|---------------------|----------------------|---------------|---------------|----------------|",
                         f"| Terbaik             | {best_fit:19.6f}% | {best_weights[0]:13.6f} | {best_weights[1]:13.6f} | {best_weights[2]:14.6f} |",
                         f"| Terburuk            | {worst_fit:19.6f}% | {worst_weights[0]:13.6f} | {worst_weights[1]:13.6f} | {worst_weights[2]:14.6f} |",
@@ -333,11 +288,11 @@ class GWOTab(ctk.CTkFrame):
                         f.write(f"Best Run Weights:\n")
                         f.write(f"  w1 (MA): {best_weights[0]:.6f}\n")
                         f.write(f"  w2 (ES): {best_weights[1]:.6f}\n")
-                        f.write(f"  w3 (RNN): {best_weights[2]:.6f}\n\n")
+                        f.write(f"  w3 (LR): {best_weights[2]:.6f}\n\n")
                         f.write(f"Average Weights Across All Runs:\n")
                         f.write(f"  w1 (MA): {avg_w[0]:.6f} (std: {std_w[0]:.6f})\n")
                         f.write(f"  w2 (ES): {avg_w[1]:.6f} (std: {std_w[1]:.6f})\n")
-                        f.write(f"  w3 (RNN): {avg_w[2]:.6f} (std: {std_w[2]:.6f})\n\n")
+                        f.write(f"  w3 (LR): {avg_w[2]:.6f} (std: {std_w[2]:.6f})\n\n")
                         f.write(f"Runs Performance Details Table:\n")
                         f.write(f"{table_str}\n")
 
@@ -348,7 +303,7 @@ class GWOTab(ctk.CTkFrame):
                     # Update labels
                     self.lbl_w1.configure(text=f"w1 (MA): {best_weights[0]:.4f}")
                     self.lbl_w2.configure(text=f"w2 (ES): {best_weights[1]:.4f}")
-                    self.lbl_w3.configure(text=f"w3 (RNN): {best_weights[2]:.4f}")
+                    self.lbl_w3.configure(text=f"w3 (LR): {best_weights[2]:.4f}")
                     self.lbl_best_fitness.configure(text=f"Best Fitness (MAPE): {best_fit:.4f}%")
 
                     self.lbl_worst_fitness.configure(text=f"Worst Fitness (MAPE): {worst_fit:.4f}%")
@@ -395,46 +350,46 @@ class GWOTab(ctk.CTkFrame):
                     self.update_stability_table(run_results, short_name)
                     messagebox.showinfo("Success", f"Multi-run {short_name} completed. Stats saved to Analysis/Stability_Stats_{short_name}.txt")
 
-                else:
-                    # Single run
-                    from optimizers.gwo import GreyWolfOptimizer
-                    opt = GreyWolfOptimizer(n_wolves=n_wolves, max_iter=max_iter)
+            else:
+                # Single run
+                from optimizers.gwo import GreyWolfOptimizer
+                opt = GreyWolfOptimizer(n_wolves=n_wolves, max_iter=max_iter)
 
-                    best_weights, convergence, positions_history = opt.optimize(
-                        y_test, y_pred_ma, y_pred_es, y_pred_rnn
-                    )
+                best_weights, convergence, positions_history = opt.optimize(
+                    y_test, y_pred_ma, y_pred_es, y_pred_lr
+                )
 
-                    # Store results
-                    self.gwo_results['best_weights'] = best_weights
-                    self.gwo_results['convergence'] = convergence
-                    self.gwo_results['optimizer_name'] = short_name
-                    self._positions_history = positions_history
+                # Store results
+                self.gwo_results['best_weights'] = best_weights
+                self.gwo_results['convergence'] = convergence
+                self.gwo_results['optimizer_name'] = short_name
+                self._positions_history = positions_history
 
-                    # Update labels
-                    self.lbl_w1.configure(text=f"w1 (MA): {best_weights[0]:.4f}")
-                    self.lbl_w2.configure(text=f"w2 (ES): {best_weights[1]:.4f}")
-                    self.lbl_w3.configure(text=f"w3 (RNN): {best_weights[2]:.4f}")
-                    self.lbl_best_fitness.configure(text=f"Best Fitness (MAPE): {convergence[-1]:.4f}%")
+                # Update labels
+                self.lbl_w1.configure(text=f"w1 (MA): {best_weights[0]:.4f}")
+                self.lbl_w2.configure(text=f"w2 (ES): {best_weights[1]:.4f}")
+                self.lbl_w3.configure(text=f"w3 (LR): {best_weights[2]:.4f}")
+                self.lbl_best_fitness.configure(text=f"Best Fitness (MAPE): {convergence[-1]:.4f}%")
 
-                    # Clear stability labels
-                    self.lbl_worst_fitness.configure(text="Worst Fitness (MAPE): -")
-                    self.lbl_mean_fitness.configure(text="Mean Fitness (MAPE): -")
-                    self.lbl_std_fitness.configure(text="Std Dev (MAPE): -")
+                # Clear stability labels
+                self.lbl_worst_fitness.configure(text="Worst Fitness (MAPE): -")
+                self.lbl_mean_fitness.configure(text="Mean Fitness (MAPE): -")
+                self.lbl_std_fitness.configure(text="Std Dev (MAPE): -")
 
-                    # Save convergence history
-                    conv_path = f"Analysis/Convergence_Data_{short_name}.csv"
-                    pd.DataFrame({'Iteration': range(1, len(convergence) + 1), 'Best_Fitness_MAPE': convergence}).to_csv(conv_path, index=False)
+                # Save convergence history
+                conv_path = f"Analysis/Convergence_Data_{short_name}.csv"
+                pd.DataFrame({'Iteration': range(1, len(convergence) + 1), 'Best_Fitness_MAPE': convergence}).to_csv(conv_path, index=False)
 
-                    # Clear/Reset table in UI for single run
-                    for widget in self.table_frame.winfo_children():
-                        widget.destroy()
-                    self.placeholder_lbl = ctk.CTkLabel(self.table_frame, text="Run 30x (Stability Analysis) to see run-by-run metrics.")
-                    self.placeholder_lbl.pack(pady=20)
+                # Clear/Reset table in UI for single run
+                for widget in self.table_frame.winfo_children():
+                    widget.destroy()
+                self.placeholder_lbl = ctk.CTkLabel(self.table_frame, text="Run 30x (Stability Analysis) to see run-by-run metrics.")
+                self.placeholder_lbl.pack(pady=20)
 
-                    messagebox.showinfo("Success", f"Single run {short_name} completed. Convergence saved to Analysis/Convergence_Data_{short_name}.csv")
+                messagebox.showinfo("Success", f"Single run {short_name} completed. Convergence saved to Analysis/Convergence_Data_{short_name}.csv")
 
-                # Plot static convergence
-                self._plot_static_convergence(self.gwo_results['convergence'])
+            # Plot static convergence
+            self._plot_static_convergence(self.gwo_results['convergence'])
 
         except Exception as e:
             messagebox.showerror("Error", f"Optimization failed: {e}")

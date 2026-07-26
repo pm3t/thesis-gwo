@@ -10,13 +10,12 @@ import pandas as pd
 import numpy as np
 
 class EnsembleTab(ctk.CTkFrame):
-    def __init__(self, master, data_processor, model_results, gwo_results, mode_sidang):
+    def __init__(self, master, data_processor, model_results, gwo_results):
         super().__init__(master)
         
         self.data_processor = data_processor
         self.model_results = model_results
         self.gwo_results = gwo_results
-        self.mode_sidang = mode_sidang
         self.canvas_comp = None
         self.canvas_error = None
         
@@ -39,6 +38,9 @@ class EnsembleTab(ctk.CTkFrame):
         
         self.btn_export_report = ctk.CTkButton(self.top_frame, text="Export Thesis Report (TXT)", command=self.export_thesis_report)
         self.btn_export_report.pack(side="left", padx=10)
+
+        self.btn_export_mape_plot = ctk.CTkButton(self.top_frame, text="Export MAPE Plot (PNG)", command=self.export_mape_plot, fg_color="#2b5b84", hover_color="#1f3f5e")
+        self.btn_export_mape_plot.pack(side="left", padx=10)
 
         # Middle: Split View
         self.grid_rowconfigure(1, weight=1)
@@ -70,20 +72,14 @@ class EnsembleTab(ctk.CTkFrame):
             weights = self.gwo_results['best_weights']
             y_pred_ma = self.model_results['MA']['pred']
             y_pred_es = self.model_results['ES']['pred']
-            y_pred_rnn = self.model_results['RNN']['pred']
+            y_pred_lr = self.model_results['LR']['pred']
             _, _, _, y_test = self.data_processor.get_train_test_data()
             dates_test, _ = self.data_processor.test_df[self.data_processor.date_col], self.data_processor.test_df[self.data_processor.target_col]
 
-            if self.mode_sidang.get():
-                import pandas as pd
-                origin_df = pd.read_csv("Analysis Origin/Analysis/Ensemble.csv")
-                y_ens_pred = origin_df['GWO_Ensemble'].values
-                y_avg_pred = origin_df['Equal_Average'].values
-            else:
-                model = WeightedEnsembleModel()
-                model.set_weights(weights)
-                y_ens_pred = model.predict(y_pred_ma, y_pred_es, y_pred_rnn)
-                y_avg_pred = (y_pred_ma + y_pred_es + y_pred_rnn) / 3.0
+            model = WeightedEnsembleModel()
+            model.set_weights(weights)
+            y_ens_pred = model.predict(y_pred_ma, y_pred_es, y_pred_lr)
+            y_avg_pred = (y_pred_ma + y_pred_es + y_pred_lr) / 3.0
             
             # 1. Metrics for GWO Ensemble (normalized scale)
             metrics = get_metrics(y_test, y_ens_pred)
@@ -106,7 +102,7 @@ class EnsembleTab(ctk.CTkFrame):
             best_baseline_mape = min(
                 self.model_results['MA']['metrics']['MAPE'],
                 self.model_results['ES']['metrics']['MAPE'],
-                self.model_results['RNN']['metrics']['MAPE']
+                self.model_results['LR']['metrics']['MAPE']
             )
             improvement = ((best_baseline_mape - metrics['MAPE']) / best_baseline_mape) * 100
             self.lbl_improvement.configure(text=f"Optimization vs Best Baseline: {improvement:.2f}% Improvement")
@@ -121,6 +117,7 @@ class EnsembleTab(ctk.CTkFrame):
         
         metrics_all = {k: v['metrics'] for k, v in self.model_results.items() if 'metrics' in v}
         fig_error, _ = Visualizer.plot_error_comparison(metrics_all)
+        self.current_fig_error = fig_error
         self.canvas_error = FigureCanvasTkAgg(fig_error, master=self.error_canvas_frame)
         self.canvas_error.draw()
         self.canvas_error.get_tk_widget().pack(fill="both", expand=True)
@@ -142,7 +139,7 @@ class EnsembleTab(ctk.CTkFrame):
                     'Actual': y_test,
                     'MA': self.model_results['MA']['pred'],
                     'ES': self.model_results['ES']['pred'],
-                    'RNN': self.model_results['RNN']['pred'],
+                    'LR': self.model_results['LR']['pred'],
                     'Equal_Average': self.model_results['Equal Average']['pred'],
                     'GWO_Ensemble': self.model_results['GWO Ensemble']['pred']
                 })
@@ -157,7 +154,7 @@ class EnsembleTab(ctk.CTkFrame):
                     f.write(f"Optimal Weights Found by {opt_name}:\n")
                     f.write(f"w1 (Moving Average): {weights[0]:.6f}\n")
                     f.write(f"w2 (Exponential Smoothing): {weights[1]:.6f}\n")
-                    f.write(f"w3 (Simple RNN): {weights[2]:.6f}\n")
+                    f.write(f"w3 (Linear Regression): {weights[2]:.6f}\n")
                     f.write(f"\nModel Performance (MAPE):\n")
                     for k, v in self.model_results.items():
                         if 'metrics' in v:
@@ -173,15 +170,6 @@ class EnsembleTab(ctk.CTkFrame):
 
         file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
         if not file_path:
-            return
-
-        if self.mode_sidang.get():
-            import shutil
-            try:
-                shutil.copy("Analysis Origin/Analysis/Thesis Data.txt", file_path)
-                messagebox.showinfo("Success", f"Thesis Report (txt) exported to {file_path}")
-            except Exception as ex:
-                messagebox.showerror("Error", f"Failed to export report: {ex}")
             return
 
         try:
@@ -242,7 +230,7 @@ class EnsembleTab(ctk.CTkFrame):
                 # 2. Model Baseline Performance
                 f.write("2. PERFORMA MODEL INDIVIDU (BASELINE)\n")
                 f.write("-----------------------------------------\n")
-                baselines = ['MA', 'ES', 'RNN']
+                baselines = ['MA', 'ES', 'LR']
                 for model_name in baselines:
                     if model_name in self.model_results:
                         m_res = self.model_results[model_name]['metrics']
@@ -293,3 +281,20 @@ class EnsembleTab(ctk.CTkFrame):
             messagebox.showinfo("Success", f"Full thesis report exported successfully to {file_path}")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to export report: {e}")
+
+    def export_mape_plot(self):
+        """Export current MAPE comparison plot to image file."""
+        if not hasattr(self, 'current_fig_error') or self.current_fig_error is None:
+            messagebox.showwarning("Warning", "Silakan jalankan ensemble terlebih dahulu untuk membuat grafik.")
+            return
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("JPG files", "*.jpg"), ("PDF files", "*.pdf")]
+        )
+        if file_path:
+            try:
+                self.current_fig_error.savefig(file_path, dpi=300, bbox_inches='tight')
+                messagebox.showinfo("Success", f"Grafik perbandingan MAPE berhasil disimpan ke {file_path}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Gagal menyimpan grafik: {e}")

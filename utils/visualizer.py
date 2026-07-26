@@ -127,7 +127,7 @@ class Visualizer:
             ax.clear()
 
         # Only display MA, ES, RNN, and GWO Ensemble
-        display_models = ['MA', 'ES', 'RNN', 'GWO Ensemble']
+        display_models = ['MA', 'ES', 'LR', 'GWO Ensemble']
         models = [m for m in display_models if m in metrics_results]
         values = [metrics_results[m][metric_name] for m in models]
 
@@ -135,7 +135,7 @@ class Visualizer:
         color_map = {
             'MA': '#1f538d',
             'ES': '#3d609c',
-            'RNN': '#ff7f0e',
+            'LR': '#ff7f0e',
             'GWO Ensemble': '#2ca02c'
         }
         colors = [color_map.get(m, '#aaaaaa') for m in models]
