@@ -126,7 +126,7 @@ class Visualizer:
             fig = ax.figure
             ax.clear()
 
-        # Only display MA, ES, RNN, and GWO Ensemble
+        # Only display MA, ES, LR, and GWO Ensemble
         display_models = ['MA', 'ES', 'LR', 'GWO Ensemble']
         models = [m for m in display_models if m in metrics_results]
         values = [metrics_results[m][metric_name] for m in models]

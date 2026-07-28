@@ -79,20 +79,12 @@ class EnsembleTab(ctk.CTkFrame):
             model = WeightedEnsembleModel()
             model.set_weights(weights)
             y_ens_pred = model.predict(y_pred_ma, y_pred_es, y_pred_lr)
-            y_avg_pred = (y_pred_ma + y_pred_es + y_pred_lr) / 3.0
             
-            # 1. Metrics for GWO Ensemble (normalized scale)
+            # Metrics for GWO Ensemble (normalized scale)
             metrics = get_metrics(y_test, y_ens_pred)
             self.model_results['GWO Ensemble'] = {
                 'pred': y_ens_pred,
                 'metrics': metrics
-            }
-            
-            # 2. Equal Average Ensemble (normalized scale)
-            avg_metrics = get_metrics(y_test, y_avg_pred)
-            self.model_results['Equal Average'] = {
-                'pred': y_avg_pred,
-                'metrics': avg_metrics
             }
             
             # 3. Update Table
@@ -140,7 +132,6 @@ class EnsembleTab(ctk.CTkFrame):
                     'MA': self.model_results['MA']['pred'],
                     'ES': self.model_results['ES']['pred'],
                     'LR': self.model_results['LR']['pred'],
-                    'Equal_Average': self.model_results['Equal Average']['pred'],
                     'GWO_Ensemble': self.model_results['GWO Ensemble']['pred']
                 })
                 export_df.to_csv(file_path, index=False)
@@ -262,7 +253,7 @@ class EnsembleTab(ctk.CTkFrame):
                 # 4. Ensemble Model Comparison
                 f.write("4. PERBANDINGAN MODEL ENSEMBLE\n")
                 f.write("-----------------------------------------\n")
-                ensembles = ['Equal Average', 'GWO Ensemble']
+                ensembles = ['GWO Ensemble']
                 for model_name in ensembles:
                     if model_name in self.model_results:
                         m_res = self.model_results[model_name]['metrics']

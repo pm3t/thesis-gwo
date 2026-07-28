@@ -27,7 +27,7 @@ class ParticleSwarmOptimizer:
         self.gbest_position = np.zeros(self.dim)
         self.gbest_score = float("inf")
 
-    def fitness_function(self, weights, y_true, y_pred_ma, y_pred_es, y_pred_rnn):
+    def fitness_function(self, weights, y_true, y_pred_ma, y_pred_es, y_pred_lr):
         """
         Calculate fitness (MAPE) for a given set of weights.
         """
@@ -40,7 +40,7 @@ class ParticleSwarmOptimizer:
         # Ensemble prediction
         y_ensemble = (weights[0] * y_pred_ma + 
                       weights[1] * y_pred_es + 
-                      weights[2] * y_pred_rnn)
+                      weights[2] * y_pred_lr)
         
         # MAPE calculation
         y_true, y_ensemble = np.array(y_true), np.array(y_ensemble)
@@ -49,7 +49,7 @@ class ParticleSwarmOptimizer:
         
         return mape
 
-    def optimize(self, y_true, y_pred_ma, y_pred_es, y_pred_rnn):
+    def optimize(self, y_true, y_pred_ma, y_pred_es, y_pred_lr):
         convergence_curve = []
         positions_history = []  # formatted identical to GWO for UI compatibility
         
@@ -63,7 +63,7 @@ class ParticleSwarmOptimizer:
                 else:
                     self.positions[i] = np.random.dirichlet(np.ones(self.dim))
 
-                fitness = self.fitness_function(self.positions[i], y_true, y_pred_ma, y_pred_es, y_pred_rnn)
+                fitness = self.fitness_function(self.positions[i], y_true, y_pred_ma, y_pred_es, y_pred_lr)
                 
                 # Update Personal Best
                 if fitness < self.pbest_scores[i]:
