@@ -1,3 +1,4 @@
+import os
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import pandas as pd
@@ -222,7 +223,7 @@ class DataTab(ctk.CTkFrame):
     def load_csv(self):
         file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
         if file_path:
-            self.lbl_file.configure(text=file_path.split("/")[-1])
+            self.lbl_file.configure(text=os.path.basename(file_path))
             df = self.data_processor.load_csv(file_path)
 
             cols = list(df.columns)
