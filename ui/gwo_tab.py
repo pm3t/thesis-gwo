@@ -47,12 +47,29 @@ class GWOTab(ctk.CTkFrame):
         )
         self.btn_run.pack(pady=5)
 
-        self.btn_export_plot = ctk.CTkButton(
-            self.left_frame, text="Export Convergence Plot",
-            command=self.export_plot,
+        # Export Buttons Section
+        ctk.CTkLabel(self.left_frame, text="Opsi Ekspor Grafik:", font=ctk.CTkFont(weight="bold")).pack(pady=(12, 2))
+
+        self.btn_export_conv = ctk.CTkButton(
+            self.left_frame, text="Export Konvergensi GWO (PNG)",
+            command=self.export_convergence_plot,
             fg_color="#2b5b84", hover_color="#1f3f5e"
         )
-        self.btn_export_plot.pack(pady=5)
+        self.btn_export_conv.pack(pady=3)
+
+        self.btn_export_pred = ctk.CTkButton(
+            self.left_frame, text="Export Prediksi Ensemble (PNG)",
+            command=self.export_prediction_plot,
+            fg_color="#2b5b84", hover_color="#1f3f5e"
+        )
+        self.btn_export_pred.pack(pady=3)
+
+        self.btn_export_combined = ctk.CTkButton(
+            self.left_frame, text="Export Both Plots (Combined)",
+            command=self.export_plot,
+            fg_color="#3d609c", hover_color="#2b4673"
+        )
+        self.btn_export_combined.pack(pady=3)
 
         # Results section
         ctk.CTkLabel(
@@ -106,29 +123,77 @@ class GWOTab(ctk.CTkFrame):
         self.placeholder_lbl = ctk.CTkLabel(self.table_frame, text="Run 30x (Stability Analysis) to see run-by-run metrics.")
         self.placeholder_lbl.pack(pady=20)
 
-        # Build initial placeholder figure
-        self._build_placeholder_figure()
+        # State storage for export
+        self._current_convergence = None
+        self._current_y_test = None
+        self._current_y_ens_pred = None
+        self._current_test_dates = None
+
+        # Build initial figure or render existing results
+        self.update_visualization()
 
     # ─────────────────────────────────────────────────────────────────────────
     # Figure helpers
     # ─────────────────────────────────────────────────────────────────────────
+    def update_visualization(self):
+        """Render plots if gwo_results contain data, else build placeholder."""
+        if 'convergence' in self.gwo_results and 'best_weights' in self.gwo_results:
+            conv = self.gwo_results['convergence']
+            best_w = self.gwo_results['best_weights']
+            self._current_convergence = conv
+
+            if all(k in self.model_results for k in ['MA', 'ES', 'LR']) and self.data_processor is not None:
+                train_dates, y_train, test_dates, y_test = self.data_processor.get_train_test_data()
+                y_pred_ma = self.model_results['MA']['pred']
+                y_pred_es = self.model_results['ES']['pred']
+                y_pred_lr = self.model_results['LR']['pred']
+
+                w_arr = np.array(best_w)
+                if np.sum(w_arr) > 0:
+                    w_arr = w_arr / np.sum(w_arr)
+                y_ens_pred = w_arr[0] * y_pred_ma + w_arr[1] * y_pred_es + w_arr[2] * y_pred_lr
+
+                self._current_y_test = y_test
+                self._current_y_ens_pred = y_ens_pred
+                self._current_test_dates = test_dates
+
+                self._plot_static_convergence(conv, y_test=y_test, y_ens_pred=y_ens_pred, test_dates=test_dates)
+            else:
+                self._plot_static_convergence(conv)
+        else:
+            self._build_placeholder_figure()
+
     def _build_placeholder_figure(self):
         """Show empty axis with axis labels before optimization runs."""
-        fig = plt.figure(figsize=(9, 5), facecolor="#2b2b2b")
-        ax_conv = fig.add_subplot(111)
+        fig, (ax_conv, ax_pred) = plt.subplots(2, 1, figsize=(9, 6.5), facecolor="white")
 
-        ax_conv.set_facecolor("#1e1e1e")
-        ax_conv.tick_params(colors="#cccccc", labelsize=8)
+        ax_conv.set_facecolor("white")
+        ax_conv.tick_params(colors="black", labelsize=8)
         for spine in ax_conv.spines.values():
-            spine.set_edgecolor("#555555")
+            spine.set_edgecolor("#cccccc")
 
-        ax_conv.set_title("Convergence Curve", color="#e0e0e0", fontsize=10)
-        ax_conv.set_xlabel("Iteration", color="#aaaaaa", fontsize=8)
-        ax_conv.set_ylabel("Best MAPE (%)", color="#aaaaaa", fontsize=8)
-        ax_conv.text(0.5, 0.5, "No data yet",
-                     ha="center", va="center", color="#555555",
+        ax_conv.set_title("Kurva Konvergensi GWO", color="black", fontsize=10, fontweight="bold")
+        ax_conv.set_xlabel("Iterasi", color="#333333", fontsize=8)
+        ax_conv.set_ylabel("Best MAPE (%)", color="#333333", fontsize=8)
+        ax_conv.grid(True, linestyle=":", alpha=0.6, color="#cccccc")
+        ax_conv.text(0.5, 0.5, "Belum ada data (Silakan klik 'Run Optimization')",
+                     ha="center", va="center", color="#777777",
                      fontsize=10, transform=ax_conv.transAxes)
 
+        ax_pred.set_facecolor("white")
+        ax_pred.tick_params(colors="black", labelsize=8)
+        for spine in ax_pred.spines.values():
+            spine.set_edgecolor("#cccccc")
+
+        ax_pred.set_title("Perbandingan Prediksi GWO Ensemble dan Data Uji", color="black", fontsize=10, fontweight="bold")
+        ax_pred.set_xlabel("Tanggal / Sampel", color="#333333", fontsize=8)
+        ax_pred.set_ylabel("Penjualan", color="#333333", fontsize=8)
+        ax_pred.grid(True, linestyle=":", alpha=0.6, color="#cccccc")
+        ax_pred.text(0.5, 0.5, "Belum ada data (Silakan klik 'Run Optimization')",
+                     ha="center", va="center", color="#777777",
+                     fontsize=10, transform=ax_pred.transAxes)
+
+        fig.tight_layout()
         self._embed_figure(fig)
 
     def _embed_figure(self, fig):
@@ -140,20 +205,127 @@ class GWOTab(ctk.CTkFrame):
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
+    def export_convergence_plot(self):
+        """Export ONLY the GWO Convergence plot to image file."""
+        if not hasattr(self, '_current_convergence') or self._current_convergence is None or len(self._current_convergence) == 0:
+            if 'convergence' in self.gwo_results:
+                self._current_convergence = self.gwo_results['convergence']
+            else:
+                messagebox.showwarning("Warning", "Belum ada data konvergensi. Silakan jalankan 'Run Optimization' terlebih dahulu.")
+                return
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("JPG files", "*.jpg"), ("PDF files", "*.pdf")],
+            title="Simpan Grafik Konvergensi GWO"
+        )
+        if file_path:
+            try:
+                fig, ax = plt.subplots(figsize=(8, 4.5), facecolor="white")
+                ax.set_facecolor("white")
+                ax.tick_params(colors="black", labelsize=9)
+                for spine in ax.spines.values():
+                    spine.set_edgecolor("#cccccc")
+
+                ax.set_title("Kurva Konvergensi Grey Wolf Optimizer (GWO)", color="black", fontsize=11, fontweight="bold", pad=12)
+                ax.set_xlabel("Iterasi", color="#333333", fontsize=9)
+                ax.set_ylabel("Best MAPE (%)", color="#333333", fontsize=9)
+                ax.grid(True, linestyle=":", alpha=0.6, color="#cccccc")
+
+                n_iter = len(self._current_convergence)
+                ax.set_xlim(0, n_iter)
+                y_min = min(self._current_convergence)
+                y_max = max(self._current_convergence)
+                y_pad = (y_max - y_min) * 0.05
+                if y_pad == 0: y_pad = y_min * 0.05
+                ax.set_ylim(y_min - y_pad, y_max + y_pad)
+
+                ax.plot(range(1, n_iter + 1), self._current_convergence, color="#1f77b4", linewidth=2, zorder=2)
+                ax.plot([n_iter], [self._current_convergence[-1]], "o", color="#d62728", markersize=6, zorder=3)
+                ax.text(
+                    0.98, 0.95, f"Best MAPE: {self._current_convergence[-1]:.4f}%", transform=ax.transAxes,
+                    color="#333333", fontsize=9, va="top", ha="right",
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor="#f8f9fa", edgecolor="#cccccc", alpha=0.9)
+                )
+
+                fig.tight_layout()
+                fig.savefig(file_path, dpi=300, bbox_inches='tight', facecolor='white')
+                plt.close(fig)
+                messagebox.showinfo("Success", f"Grafik Konvergensi GWO berhasil disimpan ke:\n{file_path}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Gagal menyimpan grafik konvergensi: {e}")
+
+    def export_prediction_plot(self):
+        """Export ONLY the GWO Ensemble Prediction vs Test Data plot to image file."""
+        if not hasattr(self, '_current_y_test') or self._current_y_test is None or self._current_y_ens_pred is None:
+            if 'best_weights' in self.gwo_results and all(k in self.model_results for k in ['MA', 'ES', 'LR']):
+                train_dates, y_train, test_dates, y_test = self.data_processor.get_train_test_data()
+                y_pred_ma = self.model_results['MA']['pred']
+                y_pred_es = self.model_results['ES']['pred']
+                y_pred_lr = self.model_results['LR']['pred']
+                best_w = self.gwo_results['best_weights']
+                w_arr = np.array(best_w)
+                if np.sum(w_arr) > 0: w_arr = w_arr / np.sum(w_arr)
+                self._current_y_ens_pred = w_arr[0] * y_pred_ma + w_arr[1] * y_pred_es + w_arr[2] * y_pred_lr
+                self._current_y_test = y_test
+                self._current_test_dates = test_dates
+            else:
+                messagebox.showwarning("Warning", "Belum ada data prediksi. Silakan jalankan 'Run Optimization' terlebih dahulu.")
+                return
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("JPG files", "*.jpg"), ("PDF files", "*.pdf")],
+            title="Simpan Grafik Perbandingan Prediksi GWO Ensemble"
+        )
+        if file_path:
+            try:
+                fig, ax = plt.subplots(figsize=(10, 5), facecolor="white")
+                ax.set_facecolor("white")
+                ax.tick_params(colors="black", labelsize=9)
+                for spine in ax.spines.values():
+                    spine.set_edgecolor("#cccccc")
+
+                ax.set_title("Perbandingan Prediksi GWO Ensemble dan Data Uji", color="black", fontsize=11, fontweight="bold", pad=12)
+                ax.set_xlabel("Tanggal", color="#333333", fontsize=9)
+                ax.set_ylabel("Penjualan", color="#333333", fontsize=9)
+                ax.grid(True, linestyle=":", alpha=0.6, color="#cccccc")
+
+                if hasattr(self.data_processor, 'inverse_transform') and self.data_processor.scaler is not None:
+                    y_test_plot = self.data_processor.inverse_transform(self._current_y_test)
+                    y_pred_plot = self.data_processor.inverse_transform(self._current_y_ens_pred)
+                else:
+                    y_test_plot = np.array(self._current_y_test)
+                    y_pred_plot = np.array(self._current_y_ens_pred)
+
+                x_axis = self._current_test_dates if self._current_test_dates is not None else range(1, len(y_test_plot) + 1)
+
+                ax.plot(x_axis, y_test_plot, label="Data Uji (Aktual)", color="#1f77b4", linewidth=1.8, alpha=0.85)
+                ax.plot(x_axis, y_pred_plot, label="Prediksi GWO Ensemble", color="#ff7f0e", linestyle="--", linewidth=1.8, alpha=0.9)
+                ax.legend(loc="best", fontsize=9)
+
+                fig.tight_layout()
+                fig.savefig(file_path, dpi=300, bbox_inches='tight', facecolor='white')
+                plt.close(fig)
+                messagebox.showinfo("Success", f"Grafik Perbandingan Prediksi berhasil disimpan ke:\n{file_path}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Gagal menyimpan grafik prediksi: {e}")
+
     def export_plot(self):
-        """Export current convergence plot to image file."""
+        """Export current combined plots to image file."""
         if not hasattr(self, 'current_fig') or self.current_fig is None:
-            messagebox.showwarning("Warning", "Belum ada grafik convergence untuk diekspor.")
+            messagebox.showwarning("Warning", "Belum ada grafik untuk diekspor. Silakan jalankan 'Run Optimization' terlebih dahulu.")
             return
 
         file_path = filedialog.asksaveasfilename(
             defaultextension=".png",
-            filetypes=[("PNG files", "*.png"), ("JPG files", "*.jpg"), ("PDF files", "*.pdf")]
+            filetypes=[("PNG files", "*.png"), ("JPG files", "*.jpg"), ("PDF files", "*.pdf")],
+            title="Simpan Kedua Grafik (Combined)"
         )
         if file_path:
             try:
-                self.current_fig.savefig(file_path, dpi=300, bbox_inches='tight')
-                messagebox.showinfo("Success", f"Grafik convergence berhasil disimpan ke {file_path}")
+                self.current_fig.savefig(file_path, dpi=300, bbox_inches='tight', facecolor='white')
+                messagebox.showinfo("Success", f"Grafik berhasil disimpan ke:\n{file_path}")
             except Exception as e:
                 messagebox.showerror("Error", f"Gagal menyimpan grafik: {e}")
 
@@ -388,8 +560,20 @@ class GWOTab(ctk.CTkFrame):
 
                 messagebox.showinfo("Success", f"Single run {short_name} completed. Convergence saved to Analysis/Convergence_Data_{short_name}.csv")
 
-            # Plot static convergence
-            self._plot_static_convergence(self.gwo_results['convergence'])
+            # Calculate GWO Ensemble prediction for visualization
+            best_w = self.gwo_results['best_weights']
+            w_arr = np.array(best_w)
+            if np.sum(w_arr) > 0:
+                w_arr = w_arr / np.sum(w_arr)
+            y_ens_pred = w_arr[0] * y_pred_ma + w_arr[1] * y_pred_es + w_arr[2] * y_pred_lr
+
+            # Plot static convergence & prediction comparison
+            self._plot_static_convergence(
+                self.gwo_results['convergence'],
+                y_test=y_test,
+                y_ens_pred=y_ens_pred,
+                test_dates=test_dates
+            )
 
         except Exception as e:
             messagebox.showerror("Error", f"Optimization failed: {e}")
@@ -401,24 +585,24 @@ class GWOTab(ctk.CTkFrame):
     # ─────────────────────────────────────────────────────────────────────────
     # Static Visualization
     # ─────────────────────────────────────────────────────────────────────────
-    def _plot_static_convergence(self, convergence):
-        """Build and show the static convergence curve."""
+    def _plot_static_convergence(self, convergence, y_test=None, y_ens_pred=None, test_dates=None):
+        """Build and show static convergence curve and prediction vs test data plot with white background."""
         n_iter = len(convergence)
-        fig = plt.figure(figsize=(9, 5), facecolor="#2b2b2b")
-        ax_conv = fig.add_subplot(111)
+        fig, (ax_conv, ax_pred) = plt.subplots(2, 1, figsize=(9, 6.5), facecolor="white")
 
-        ax_conv.set_facecolor("#1e1e1e")
-        ax_conv.tick_params(colors="#cccccc", labelsize=8)
+        # ── 1. Convergence Plot (Background Putih) ───────────────────────────
+        ax_conv.set_facecolor("white")
+        ax_conv.tick_params(colors="black", labelsize=8)
         for spine in ax_conv.spines.values():
-            spine.set_edgecolor("#555555")
+            spine.set_edgecolor("#cccccc")
 
-        ax_conv.set_title("Convergence Curve", color="#e0e0e0", fontsize=10)
-        ax_conv.set_xlabel("Iteration", color="#aaaaaa", fontsize=8)
-        ax_conv.set_ylabel("Best MAPE (%)", color="#aaaaaa", fontsize=8)
-        
+        ax_conv.set_title("Kurva Konvergensi GWO", color="black", fontsize=10, fontweight="bold")
+        ax_conv.set_xlabel("Iterasi", color="#333333", fontsize=8)
+        ax_conv.set_ylabel("Best MAPE (%)", color="#333333", fontsize=8)
+        ax_conv.grid(True, linestyle=":", alpha=0.6, color="#cccccc")
+
         if n_iter > 0:
             ax_conv.set_xlim(0, n_iter)
-            # Add small padding to y-limits
             y_min = min(convergence)
             y_max = max(convergence)
             y_pad = (y_max - y_min) * 0.05
@@ -427,14 +611,42 @@ class GWOTab(ctk.CTkFrame):
             ax_conv.set_ylim(y_min - y_pad, y_max + y_pad)
 
             ax_conv.plot(range(1, n_iter + 1), convergence,
-                         color="#5599ff", linewidth=2, zorder=2)
+                         color="#1f77b4", linewidth=2, zorder=2, label="Best Fitness")
                          
-            ax_conv.plot([n_iter], [convergence[-1]], "o", color="#ff4444", markersize=5, zorder=3)
+            ax_conv.plot([n_iter], [convergence[-1]], "o", color="#d62728", markersize=6, zorder=3)
             ax_conv.text(
-                0.98, 0.97, f"MAPE: {convergence[-1]:.4f}%", transform=ax_conv.transAxes,
-                color="#aaaaaa", fontsize=8, va="top", ha="right"
+                0.98, 0.95, f"Best MAPE: {convergence[-1]:.4f}%", transform=ax_conv.transAxes,
+                color="#333333", fontsize=8, va="top", ha="right",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="#f8f9fa", edgecolor="#cccccc", alpha=0.9)
             )
 
+        # ── 2. Plot Perbandingan Prediksi GWO Ensemble dan Data Uji ─────────
+        ax_pred.set_facecolor("white")
+        ax_pred.tick_params(colors="black", labelsize=8)
+        for spine in ax_pred.spines.values():
+            spine.set_edgecolor("#cccccc")
+
+        ax_pred.set_title("Perbandingan Prediksi GWO Ensemble dan Data Uji", color="black", fontsize=10, fontweight="bold")
+        ax_pred.set_xlabel("Tanggal", color="#333333", fontsize=8)
+        ax_pred.set_ylabel("Penjualan", color="#333333", fontsize=8)
+        ax_pred.grid(True, linestyle=":", alpha=0.6, color="#cccccc")
+
+        if y_test is not None and y_ens_pred is not None:
+            # Denormalize data if scaler is available
+            if hasattr(self.data_processor, 'inverse_transform') and self.data_processor.scaler is not None:
+                y_test_plot = self.data_processor.inverse_transform(y_test)
+                y_pred_plot = self.data_processor.inverse_transform(y_ens_pred)
+            else:
+                y_test_plot = np.array(y_test)
+                y_pred_plot = np.array(y_ens_pred)
+
+            x_axis = test_dates if test_dates is not None else range(1, len(y_test_plot) + 1)
+
+            ax_pred.plot(x_axis, y_test_plot, label="Data Uji (Aktual)", color="#1f77b4", linewidth=1.8, alpha=0.85)
+            ax_pred.plot(x_axis, y_pred_plot, label="Prediksi GWO Ensemble", color="#ff7f0e", linestyle="--", linewidth=1.8, alpha=0.9)
+            ax_pred.legend(loc="best", fontsize=8)
+
+        fig.tight_layout()
         self._embed_figure(fig)
 
     def update_stability_table(self, run_results, short_name):
