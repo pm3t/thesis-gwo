@@ -1,0 +1,235 @@
+--- P0 [Normal] ---
+Optimasi Bobot Model Ensemble untuk Peramalan Penjualan Menggunakan Grey Wolf Optimizer
+
+--- P1 [Normal] ---
+Bayu Nurcahyono¹, Agung Budi Susanto², Sudarno Wiharjo²
+
+--- P2 [Normal] ---
+1,2,3) Teknik Informatika S-2, Program Pascasarjana, Universitas Pamulang, Kota Tangerang Selatan, Banten
+
+--- P3 [Normal] ---
+Email: ¹mirmatheorara1@gmail.com, 2dosen02680@unpam.ac.id, 3dosen00119@unpam.ac.id
+
+--- P4 [Normal] ---
+ABSTRACT
+
+--- P5 [Normal] ---
+Sales forecasting plays a crucial role in supporting strategic corporate decision-making, such as production planning, inventory management, and the formulation of marketing strategies. However, sales data that is complex, non-linear, and seasonal causes conventional methods such as Moving Average (MA), Exponential Smoothing (ES), and Recurrent Neural Network (RNN) to often produce limited accuracy. This study aims to optimize the ensemble model weights of these three methods using the Grey Wolf Optimizer (GWO) algorithm to improve sales forecasting accuracy. The proposed method begins with preprocessing the Store Sales - Time Series Forecasting dataset from Kaggle, splitting the data into training and testing sets, developing individual baseline models of MA, ES, and RNN, and developing a weighted ensemble model consisting of the three previous models with weights optimized by GWO. The performance of the three individual baseline models and the weighted ensemble model were evaluated using MAE, MSE, RMSE, MAPE, and R² metrics. The results show that the GWO-optimized ensemble model achieved a MAPE of 40.09%, outperforming all individual baseline models. Compared to the best baseline model (RNN with MAPE 41.35%), the GWO ensemble achieved an accuracy improvement of 1.26%. The GWO algorithm demonstrated high stability with a standard deviation of only 0.000008% across 30 independent runs.
+
+--- P6 [Normal] ---
+Keywords: sales forecasting; ensemble learning; grey wolf optimizer; optimization; machine learning
+
+--- P7 [Normal] ---
+ABSTRAK
+
+--- P8 [Normal] ---
+Prediksi penjualan memiliki peran krusial dalam mendukung pengambilan keputusan strategis perusahaan, seperti perencanaan produksi, pengelolaan persediaan, dan penyusunan strategi pemasaran. Namun, data penjualan yang bersifat kompleks, non-linear, dan musiman menyebabkan metode konvensional seperti Moving Average (MA), Exponential Smoothing (ES), dan Recurrent Neural Network (RNN) sering menghasilkan akurasi yang terbatas. Penelitian ini bertujuan untuk mengoptimasi bobot model ensemble dari ketiga metode tersebut menggunakan algoritma Grey Wolf Optimizer (GWO) guna meningkatkan akurasi peramalan penjualan. Metode yang diusulkan diawali dengan pra-pemrosesan dataset Store Sales - Time Series Forecasting dari Kaggle, pembagian data latih dan data uji, pengembangan model baseline individual MA, ES, dan RNN, serta pengembangan model weighted ensemble dengan bobot yang dioptimalkan menggunakan GWO. Hasil penelitian menunjukkan bahwa model ensemble yang dioptimasi GWO mencapai MAPE sebesar 40,09%, melampaui seluruh model baseline individu. Dibandingkan dengan model baseline terbaik (RNN dengan MAPE 41,35%), model GWO ensemble memberikan peningkatan akurasi sebesar 1,26%. Algoritma GWO menunjukkan stabilitas yang tinggi dengan standar deviasi hanya 0,000008% dari 30 kali pengujian independen.
+
+--- P9 [Normal] ---
+Kata kunci: peramalan penjualan; ensemble learning; grey wolf optimizer; optimasi; machine learning
+
+--- P10 [List Paragraph] ---
+PENDAHULUAN
+
+--- P11 [Normal (Web)] ---
+Data Penjualan mempunyai kompleksitas data yang bersifat non-linear, musiman, dan dipengaruhi oleh faktor eksternal seperti promosi, tren pasar, serta perilaku konsumen. Model konvensional seperti Moving Average (MA) dan Exponential Smoothing (ES) sering kali gagal menangkap dinamika tersebut, sementara pendekatan berbasis machine learning seperti Recurrent Neural Network (RNN) meski lebih adaptif, tetap belum konsisten memberikan hasil terbaik di berbagai konteks. Oleh karena itu, muncul kebutuhan untuk menggabungkan keunggulan masing-masing model melalui ensemble learning, dengan bobot yang dioptimasi secara adaptif. Hipotesis penelitian ini adalah bahwa optimasi bobot ensemble menggunakan Grey Wolf Optimizer (GWO) mampu meningkatkan akurasi prediksi penjualan dibandingkan model baseline individu maupun ensemble dengan bobot tetap.
+
+--- P12 [Normal (Web)] ---
+Kajian pustaka menunjukkan bahwa penelitian terdahulu telah memanfaatkan algoritma metaheuristik seperti Genetic Algorithm (GA), Particle Swarm Optimization (PSO), dan Bayesian Optimization untuk meningkatkan performa model. Namun, penerapan GWO secara spesifik untuk optimasi bobot ensemble dalam konteks peramalan penjualan masih jarang ditemukan. Celah penelitian ini terletak pada minimnya penggunaan algoritma GWO sebagai mekanisme pembobotan adaptif model ensemble dalam mengatasi keterbatasan metode konvensional. Dengan demikian, novelty penelitian ini adalah pengembangan model adaptive weighted ensemble berbasis GWO yang diharapkan mampu menghasilkan prediksi penjualan lebih akurat dan stabil, sekaligus memperluas penerapan metaheuristic optimization pada domain peramalan penjualan
+
+--- P13 [List Paragraph] ---
+METODE
+
+--- P14 [Normal] ---
+2.1.    Tahapan Penelitian
+
+--- P15 [Normal] ---
+Penelitian ini dilakukan melalui beberapa tahapan yang sistematis. Tahap pertama adalah studi literatur untuk membangun landasan teoretis mengenai peramalan, ensemble learning, dan algoritma GWO. Tahap kedua adalah pengumpulan data menggunakan dataset Store Sales - Time Series Forecasting dari Kaggle. Tahap ketiga adalah pra-pemrosesan data yang meliputi pembersihan data, transformasi data, dan pembagian data. Tahap keempat adalah implementasi model baseline individu MA, ES, dan RNN. Tahap kelima adalah optimasi bobot ensemble menggunakan algoritma GWO. Tahap terakhir adalah evaluasi dan perbandingan kinerja model menggunakan metrik MAE, MSE, RMSE, MAPE, dan R².
+
+--- P16 [Normal] ---
+2.2.    Data Penelitian
+
+--- P17 [Normal] ---
+Dataset yang digunakan dalam penelitian ini adalah data time series penjualan ritel dari kompetisi Kaggle "Store Sales - Time Series Forecasting". Dataset ini berisi 3.000.888 baris data penjualan harian dari 54 toko dengan 33 kategori produk selama periode 2013 hingga 2017. Untuk keperluan analisis univariate time series, data diagregasi berdasarkan tanggal dan dinormalisasi menggunakan MinMaxScaler ke rentang [0,1], menghasilkan 1.684 record harian. Data dibagi menjadi 80% data latih (1.347 record) dan 20% data uji (337 record) secara kronologis.
+
+--- P18 [Normal] ---
+
+
+--- P19 [Normal] ---
+Gambar 1. Visualisasi Pembagian Data Latih dan Data Uji
+
+--- P20 [Normal] ---
+
+
+--- P21 [Normal] ---
+2.3.    Model Baseline
+
+--- P22 [Normal] ---
+Tiga model baseline yang digunakan dalam penelitian ini adalah: Moving Average (MA) — metode peramalan yang menghitung rata-rata dari sejumlah data historis terbaru untuk memprediksi nilai periode berikutnya. MA efektif untuk menghaluskan fluktuasi acak dalam data dan mengidentifikasi tren jangka pendek. Dalam penelitian ini, panjang jendela (window) optimal ditentukan melalui proses eksperimen. Exponential Smoothing (ES) — metode peramalan yang memberikan bobot secara eksponensial menurun pada data historis, di mana data yang lebih baru memiliki bobot yang lebih tinggi. Metode ini lebih responsif terhadap perubahan pola data dibandingkan MA. Penelitian ini menggunakan Holt-Winters (Triple Exponential Smoothing) untuk menangani pola tren dan musiman. Recurrent Neural Network (RNN) — jaringan saraf tiruan yang dirancang untuk mengolah data berurutan (sequential data). RNN memiliki mekanisme umpan balik (feedback loop) yang memungkinkan jaringan menyimpan informasi dari proses sebelumnya melalui hidden state, sehingga efektif untuk menangkap pola non-linear dan ketergantungan temporal dalam data time series [7].
+
+--- P23 [Normal] ---
+2.4.    Optimasi Bobot Ensemble dengan GWO
+
+--- P24 [Normal] ---
+Grey Wolf Optimizer (GWO) adalah algoritma optimasi metaheuristik berbasis populasi yang terinspirasi oleh hierarki kepemimpinan dan mekanisme berburu serigala abu-abu [6]. Dalam GWO, empat tingkatan hierarki — alpha (α), beta (β), delta (δ), dan omega (ω) — digunakan untuk memandu proses pencarian solusi optimal. Pada penelitian ini, GWO digunakan untuk mengoptimasi tiga bobot w₁, w₂, dan w₃ yang masing-masing merepresentasikan kontribusi model MA, ES, dan RNN terhadap prediksi ensemble. Fungsi objektif yang digunakan adalah meminimalkan nilai MAPE. Prediksi ensemble dihitung sebagai:
+
+--- P25 [Normal] ---
+ŷ_ensemble = w₁ × ŷ_MA + w₂ × ŷ_ES + w₃ × ŷ_RNN			(1)
+
+--- P26 [Normal] ---
+dengan ketentuan bahwa jumlah seluruh bobot sama dengan 1 dan setiap bobot bernilai antara 0 dan 1. Parameter GWO yang digunakan adalah ukuran populasi 20 serigala dan jumlah iterasi maksimum 100, dengan MAPE sebagai fungsi objektif. Pengujian dilakukan sebanyak 30 kali (multi-run) untuk memvalidasi stabilitas dan konsistensi algoritma.
+
+--- P27 [Normal] ---
+2.5.    Metrik Evaluasi
+
+--- P28 [Normal] ---
+Kinerja model dievaluasi menggunakan lima metrik standar peramalan: Mean Absolute Error (MAE), Mean Squared Error (MSE), Root Mean Squared Error (RMSE), Mean Absolute Percentage Error (MAPE), dan R-squared (R²). MAPE digunakan sebagai metrik utama karena memberikan interpretasi persentase kesalahan yang intuitif [1].
+
+--- P29 [List Paragraph] ---
+HASIL DAN PEMBAHASAN
+
+--- P30 [List Paragraph] ---
+    Performa Model Baseline
+
+--- P31 [Normal] ---
+Hasil pengujian ketiga model baseline individu disajikan pada Tabel 2. Model RNN mencatatkan performa terbaik dengan nilai MAPE terendah, yaitu 41,3504%, menunjukkan kemampuan unggul dalam menangkap pola sekuensial dan tren non-linear. ES memiliki MAPE tertinggi (46,4116%), namun unggul pada metrik lainnya dengan RMSE terendah (0,1352) dan satu-satunya R² positif (0,0783).
+
+--- P32 [Normal] ---
+Tabel 2. Performa Model Baseline
+
+--- P33 [List Paragraph] ---
+    Optimasi Bobot dengan GWO
+
+--- P34 [Normal] ---
+Algoritma GWO dijalankan sebanyak 30 kali dengan parameter populasi 20 serigala dan 100 iterasi. Ringkasan statistik hasil optimasi disajikan pada Tabel 3. Algoritma GWO mencapai nilai fitness (MAPE) terbaik sebesar 40,092401% dengan standar deviasi yang sangat kecil, yaitu 0,000008%, menunjukkan bahwa GWO sangat stabil dan tidak rentan terhadap variasi inisialisasi acak.
+
+--- P35 [Normal] ---
+
+
+--- P36 [Normal] ---
+Gambar 2. Kurva Konvergensi Algoritma Grey Wolf Optimizer
+
+--- P37 [Normal] ---
+
+
+--- P38 [Normal] ---
+Tabel 3. Ringkasan Statistik Optimasi GWO (30 Run)
+
+--- P39 [Normal] ---
+
+
+--- P40 [Normal] ---
+Konfigurasi bobot optimal yang dihasilkan adalah w₁ (MA) = 0,315732, w₂ (ES) = 0,000000, dan w₃ (RNN) = 0,684268. Dominasi bobot pada RNN (68,43%) menunjukkan bahwa GWO mengakui RNN sebagai model prediktif terbaik. MA berkontribusi sebesar 31,57%, memberikan informasi komplementer yang tidak sepenuhnya tertangkap oleh RNN. ES mendapat bobot 0,00% karena memiliki MAPE tertinggi dan tidak memberikan kontribusi positif terhadap akurasi ensemble.
+
+--- P41 [List Paragraph] ---
+    Perbandingan Performa Model
+
+--- P42 [Normal] ---
+Perbandingan performa antara model ensemble yang dioptimasi GWO dengan ketiga model baseline disajikan pada Tabel 4.
+
+--- P43 [Normal] ---
+Tabel 4. Perbandingan Metrik Performa Seluruh Model
+
+--- P44 [Normal] ---
+
+
+--- P45 [Normal] ---
+Berdasarkan Tabel 4, model GWO Ensemble menghasilkan MAPE terendah sebesar 40,0924%, lebih rendah dibandingkan semua model baseline. Apabila dibandingkan dengan RNN sebagai best baseline (MAPE 41,3504%), model GWO Ensemble mencatatkan peningkatan akurasi sebesar 1,26% secara absolut. Hal ini membuktikan bahwa optimasi bobot menggunakan GWO berhasil meningkatkan akurasi peramalan secara signifikan.
+
+--- P46 [Normal] ---
+
+
+--- P47 [Normal] ---
+Gambar 3. Perbandingan MAPE Seluruh Model
+
+--- P48 [Normal] ---
+
+
+--- P49 [Normal] ---
+Namun demikian, pada metrik lainnya GWO Ensemble berada di posisi kedua setelah ES: MAE 0,1184 (terbaik ES 0,1074), MSE 0,0262 (terbaik ES 0,0183), RMSE 0,1620 (terbaik ES 0,1352), dan R² -0,3241 (terbaik ES 0,0783). Hal ini mengindikasikan bahwa GWO Ensemble memprioritaskan penurunan MAPE sebagai fungsi objektif, sementara ES tetap unggul dalam meminimalkan error absolut dan varian residual.
+
+--- P50 [Normal] ---
+Hasil ini menunjukkan bahwa pendekatan optimasi bobot ensemble dengan GWO efektif dalam meningkatkan akurasi peramalan penjualan, terutama pada metrik MAPE yang menjadi fungsi objektif optimasi. Stabilitas GWO yang tinggi (standar deviasi 0,000008%) menegaskan keandalan algoritma ini dalam menyelesaikan permasalahan optimasi bobot ensemble pada domain time series.
+
+--- P51 [Normal] ---
+
+
+--- P52 [Normal] ---
+Gambar 4. Perbandingan Prediksi GWO Ensemble dengan Data Uji
+
+--- P53 [Normal] ---
+
+
+--- P54 [List Paragraph] ---
+KESIMPULAN
+
+--- P55 [Normal] ---
+Penelitian ini telah berhasil melakukan optimasi bobot pada model ensemble untuk peramalan penjualan menggunakan Grey Wolf Optimizer (GWO). Kesimpulan yang diperoleh adalah sebagai berikut:
+
+--- P56 [Normal] ---
+Pertama, model weighted ensemble yang menggabungkan MA, ES, dan RNN berhasil dikembangkan dengan bobot optimal: RNN 68,43%, MA 31,57%, dan ES 0,00%. Kedua, algoritma GWO berhasil menemukan kombinasi bobot optimal yang menghasilkan MAPE sebesar 40,09%, melampaui seluruh model baseline individu. Dibandingkan best baseline RNN (MAPE 41,35%), terjadi peningkatan akurasi sebesar 1,26%. Ketiga, hasil pengujian multi-run sebanyak 30 kali membuktikan bahwa GWO sangat robust dengan standar deviasi MAPE yang sangat kecil, yaitu 0,000008%, menunjukkan algoritma GWO tidak rentan terhadap variasi inisialisasi awal acak dan konsisten mencapai konvergensi global.
+
+--- P57 [Normal] ---
+Penelitian selanjutnya disarankan untuk menggunakan arsitektur deep learning yang lebih mutakhir seperti LSTM, GRU, atau Transformer sebagai model baseline, serta mengaplikasikan data multivariate dengan menyertakan variabel tambahan seperti harga produk, promosi, dan hari libur untuk menghasilkan prediksi yang lebih granular dan akurat.
+
+--- P58 [Normal] ---
+5. DAFTAR PUSTAKA
+
+--- P59 [Normal] ---
+[1]	R. J. Hyndman and G. Athanasopoulos, Forecasting: Principles and Practice, 3rd ed. Melbourne, Australia: OTexts, 2021.
+
+--- P60 [Normal] ---
+[2]	S. Makridakis, E. Spiliotis, and V. Assimakopoulos, "The M4 Competition: 100,000 time series and 61 forecasting methods," Int. J. Forecast., vol. 36, no. 1, pp. 54–74, 2020, doi: 10.1016/j.ijforecast.2019.04.014.
+
+--- P61 [Normal] ---
+[3]	M. Aras, I. D. Kocak, and H. G. Senol, "Forecasting sales with time series analysis: A case study in a textile company," J. Eng. Technol. Sci., vol. 49, no. 4, pp. 505–517, 2017.
+
+--- P62 [Normal] ---
+[4]	S. Ganguly and S. Mukherjee, "Machine learning for sales forecasting: A comprehensive review," Expert Syst. Appl., vol. 238, p. 121789, 2024, doi: 10.1016/j.eswa.2023.121789.
+
+--- P63 [Normal] ---
+[5]	R. Adhikari and R. K. Agrawal, "Performance evaluation of weights selection schemes for weighted average ensemble of time series models," in Proc. Int. Conf. Comput. Sci. Inf. Technol., 2012, pp. 408–419.
+
+--- P64 [Normal] ---
+[6]	S. Mirjalili, S. M. Mirjalili, and A. Lewis, "Grey Wolf Optimizer," Adv. Eng. Softw., vol. 69, pp. 46–61, 2014, doi: 10.1016/j.advengsoft.2013.12.007.
+
+--- P65 [Normal] ---
+[7]	EL Mahjouby et al., "Recurrent neural networks for time series forecasting: A comprehensive review," Neural Comput. Appl., vol. 36, no. 5, pp. 2345–2370, 2024.
+
+--- P66 [Normal] ---
+[8]	Y. K. Saheed and S. Misra, "A grey wolf optimizer-based stacking ensemble for IoT intrusion detection," IEEE Internet Things J., vol. 11, no. 3, pp. 4567–4578, 2024, doi: 10.1109/JIOT.2023.3328910.
+
+--- P67 [Normal] ---
+[9]	M. Husayn, O. R. Adegboye, and A. Alzubi, "GWO-optimized ensemble learning for interpretable and accurate prediction of student academic performance," IEEE Access, vol. 13, pp. 11234–11248, 2025, doi: 10.1109/ACCESS.2025.3528912.
+
+--- P68 [Normal] ---
+[10]	L. Lou, W. Xia, Z. Sun, S. Quan, S. Yin, Z. Gao, and C. Lin, "COVID-19 mortality prediction using ensemble learning and grey wolf optimization," Diagnostics, vol. 13, no. 4, p. 765, 2023, doi: 10.3390/diagnostics13040765.
+
+--- P69 [Normal] ---
+[11]	T. Jin, "Optimizing retail sales forecasting through a PSO-enhanced ensemble model integrating LightGBM, XGBoost, and deep neural networks," J. Retail. Consum. Serv., vol. 82, p. 104089, 2025, doi: 10.1016/j.jretconser.2024.104089.
+
+--- P70 [Normal] ---
+[12]	J. Manokaran and G. Vairavel, "IGWO-SoE: Improved grey wolf optimization-based stack of ensemble learning algorithm for anomaly detection in IoT edge computing," Comput. Netw., vol. 228, p. 109739, 2023, doi: 10.1016/j.comnet.2023.109739.
+
+
+=== TABLES ===
+
+--- TABLE 1 ---
+Row 0: Model | MAPE (%) | MAE | MSE | RMSE | R²
+Row 1: MA | 44,4608 | 0,1165 | 0,0200 | 0,1414 | -0,0089
+Row 2: ES | 46,4116 | 0,1074 | 0,0183 | 0,1352 | 0,0783
+Row 3: RNN | 41,3504 | 0,1377 | 0,0359 | 0,1896 | -0,8128
+
+--- TABLE 2 ---
+Row 0: Parameter | MAPE (%) | w₁ (MA) | w₂ (ES) | w₃ (RNN)
+Row 1: Terbaik | 40,092401 | 0,315732 | 0,000000 | 0,684268
+Row 2: Terburuk | 40,092441 | 0,315719 | 0,000016 | 0,684265
+Row 3: Rata-rata | 40,092405 | 0,315733 | 0,000001 | 0,684265
+Row 4: Std. Deviasi | 0,000008 | 0,000020 | 0,000003 | 0,000020
+
+--- TABLE 3 ---
+Row 0: Model | MAPE (%) | MAE | MSE | RMSE | R²
+Row 1: MA | 44,4608 | 0,1165 | 0,0200 | 0,1414 | -0,0089
+Row 2: ES | 46,4116 | 0,1074 | 0,0183 | 0,1352 | 0,0783
+Row 3: RNN | 41,3504 | 0,1377 | 0,0359 | 0,1896 | -0,8128
+Row 4: GWO Ensemble | 40,0924 | 0,1184 | 0,0262 | 0,1620 | -0,3241

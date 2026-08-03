@@ -1,0 +1,192 @@
+import docx
+import os
+
+doc_path = r"c:\GWO\Journal2.docx"
+doc = docx.Document(doc_path)
+
+# --- 1. UPDATE PARAGRAPHS ---
+replacements_p = {
+    5: (
+        "Sales forecasting plays a crucial role in supporting strategic corporate decision-making, "
+        "such as production planning, inventory management, and the formulation of marketing strategies. "
+        "However, sales data that is complex, non-linear, and seasonal causes conventional methods such as "
+        "Moving Average (MA), Exponential Smoothing (ES), and Linear Regression (LR) to often produce limited accuracy. "
+        "This study aims to optimize the ensemble model weights of these three methods using the Grey Wolf Optimizer (GWO) "
+        "algorithm to improve sales forecasting accuracy. The proposed method begins with preprocessing the Store Sales - "
+        "Time Series Forecasting dataset from Kaggle, splitting the data into training and testing sets, developing individual "
+        "baseline models of MA, ES, and LR, and developing a weighted ensemble model consisting of the three previous models "
+        "with weights optimized by GWO. The performance of the three individual baseline models and the weighted ensemble model "
+        "were evaluated using MAE, MSE, RMSE, MAPE, and R² metrics. The results show that the GWO-optimized ensemble model "
+        "achieved a MAPE of 11.60%, outperforming all individual baseline models. Compared to the best baseline model (Seasonal MA "
+        "with MAPE 12.62%), the GWO ensemble achieved an accuracy improvement of 1.02%. The GWO algorithm demonstrated high "
+        "stability with a standard deviation of only 0.000026% across 30 independent runs."
+    ),
+    8: (
+        "Prediksi penjualan memiliki peran krusial dalam mendukung pengambilan keputusan strategis perusahaan, seperti "
+        "perencanaan produksi, pengelolaan persediaan, dan penyusunan strategi pemasaran. Namun, data penjualan yang bersifat "
+        "kompleks, non-linear, dan musiman menyebabkan metode konvensional seperti Moving Average (MA), Exponential Smoothing (ES), "
+        "dan Linear Regression (LR) sering menghasilkan akurasi yang terbatas. Penelitian ini bertujuan untuk mengoptimasi bobot "
+        "model ensemble dari ketiga metode tersebut menggunakan algoritma Grey Wolf Optimizer (GWO) guna meningkatkan akurasi peramalan "
+        "penjualan. Metode yang diusulkan diawali dengan pra-pemrosesan dataset Store Sales - Time Series Forecasting dari Kaggle, "
+        "pembagian data latih dan data uji, pengembangan model baseline individual MA, ES, dan LR, serta pengembangan model weighted "
+        "ensemble dengan bobot yang dioptimalkan menggunakan GWO. Hasil penelitian menunjukkan bahwa model ensemble yang dioptimasi GWO "
+        "mencapai MAPE sebesar 11,60%, melampaui seluruh model baseline individu. Dibandingkan dengan model baseline terbaik (Seasonal MA "
+        "dengan MAPE 12,62%), model GWO ensemble memberikan peningkatan akurasi sebesar 1,02%. Algoritma GWO menunjukkan stabilitas "
+        "yang tinggi dengan standar deviasi hanya 0,000026% dari 30 kali pengujian independen."
+    ),
+    11: (
+        "Data Penjualan mempunyai kompleksitas data yang bersifat non-linear, musiman, dan dipengaruhi oleh faktor eksternal "
+        "seperti promosi, tren pasar, serta perilaku konsumen. Model konvensional seperti Moving Average (MA) dan Exponential "
+        "Smoothing (ES) sering kali gagal menangkap dinamika tersebut, sementara metode linier seperti Linear Regression (LR) "
+        "unggul dalam menguraikan tren linier namun belum optimal menangkap sifat musiman dan fluktuasi jangka pendek. Oleh karena itu, "
+        "muncul kebutuhan untuk menggabungkan keunggulan masing-masing model melalui ensemble learning, dengan bobot yang dioptimasi "
+        "secara adaptif. Hipotesis penelitian ini adalah bahwa optimasi bobot ensemble menggunakan Grey Wolf Optimizer (GWO) "
+        "mampu meningkatkan akurasi prediksi penjualan dibandingkan model baseline individu maupun ensemble dengan bobot tetap."
+    ),
+    15: (
+        "Penelitian ini dilakukan melalui beberapa tahapan yang sistematis. Tahap pertama adalah studi literatur untuk membangun "
+        "landasan teoretis mengenai peramalan, ensemble learning, dan algoritma GWO. Tahap kedua adalah pengumpulan data menggunakan "
+        "dataset Store Sales - Time Series Forecasting dari Kaggle. Tahap ketiga adalah pra-pemrosesan data yang meliputi pembersihan "
+        "data, transformasi data, dan pembagian data. Tahap keempat adalah implementasi model baseline individu MA, ES, dan LR. Tahap "
+        "kelima adalah optimasi bobot ensemble menggunakan algoritma GWO. Tahap terakhir adalah evaluasi dan perbandingan kinerja "
+        "model menggunakan metrik MAE, MSE, RMSE, MAPE, dan R²."
+    ),
+    17: (
+        "Dataset yang digunakan dalam penelitian ini adalah data time series penjualan ritel dari kompetisi Kaggle \"Store Sales - "
+        "Time Series Forecasting\". Dataset ini berisi 3.000.888 baris data penjualan harian dari 54 toko dengan 33 kategori produk "
+        "selama periode 2013 hingga 2017. Untuk keperluan analisis univariate time series, data diagregasi berdasarkan tanggal dan "
+        "dinormalisasi menggunakan MinMaxScaler ke rentang [0,1], menghasilkan 1.674 record harian. Data dibagi menjadi 80% data latih "
+        "(1.339 record) dan 20% data uji (335 record) secara kronologis."
+    ),
+    22: (
+        "Tiga model baseline yang digunakan dalam penelitian ini adalah: Moving Average (MA) — metode peramalan yang menghitung "
+        "rata-rata dari sejumlah data historis terbaru untuk memprediksi nilai periode berikutnya. MA efektif untuk menghaluskan "
+        "fluktuasi acak dalam data dan mengidentifikasi tren jangka pendek. Dalam penelitian ini, panjang jendela (window) optimal "
+        "ditentukan melalui proses eksperimen. Exponential Smoothing (ES) — metode peramalan yang memberikan bobot secara eksponensial "
+        "menurun pada data historis, di mana data yang lebih baru memiliki bobot yang lebih tinggi. Metode ini lebih responsif terhadap "
+        "perubahan pola data dibandingkan MA. Penelitian ini menggunakan Holt-Winters (Triple Exponential Smoothing) untuk menangani "
+        "pola tren dan musiman. Linear Regression (LR) — metode pemodelan statistik konvensional yang memodelkan hubungan linier antara "
+        "variabel terikat (penjualan) dengan variabel bebas (indeks waktu). LR digunakan untuk menangkap komponen tren garis lurus "
+        "(linear trend) jangka panjang dalam data penjualan harian."
+    ),
+    24: (
+        "Grey Wolf Optimizer (GWO) adalah algoritma optimasi metaheuristik berbasis populasi yang terinspirasi oleh hierarki kepemimpinan "
+        "dan mekanisme berburu serigala abu-abu [6]. Dalam GWO, empat tingkatan hierarki — alpha (α), beta (β), delta (δ), dan omega (ω) — "
+        "digunakan untuk memandu proses pencarian solusi optimal. Pada penelitian ini, GWO digunakan untuk mengoptimasi tiga bobot w₁, w₂, dan "
+        "w₃ yang masing-masing merepresentasikan kontribusi model MA, ES, dan LR terhadap prediksi ensemble. Fungsi objektif yang digunakan "
+        "adalah meminimalkan nilai MAPE. Prediksi ensemble dihitung sebagai:"
+    ),
+    25: "ŷ_ensemble = w₁ × ŷ_MA + w₂ × ŷ_ES + w₃ × ŷ_LR			(1)",
+    31: (
+        "Hasil pengujian ketiga model baseline individu disajikan pada Tabel 1. Model Seasonal Moving Average (MA) mencatatkan performa "
+        "terbaik di antara model baseline individu dengan nilai MAPE terendah sebesar 12,6202%, MAE 0,0722, dan R² sebesar 0,6149. "
+        "Exponential Smoothing (ES) berada di posisi kedua dengan MAPE 13,8889%, MAE 0,0793, dan R² 0,5623. Sementara itu, Linear Regression "
+        "(LR) menghasilkan MAPE tertinggi sebesar 20,2528%, MAE 0,0987, dan R² 0,5046."
+    ),
+    34: (
+        "Algoritma GWO dijalankan sebanyak 30 kali dengan parameter populasi 20 serigala dan 100 iterasi. Ringkasan statistik hasil "
+        "optimasi disajikan pada Tabel 2. Algoritma GWO mencapai nilai fitness (MAPE) terbaik sebesar 11,604454% dengan standar deviasi "
+        "yang sangat kecil, yaitu 0,000026%, menunjukkan bahwa GWO sangat stabil dan konsisten konvergen menuju solusi global."
+    ),
+    40: (
+        "Konfigurasi bobot optimal yang dihasilkan oleh GWO adalah w₁ (MA) = 0,640968, w₂ (ES) = 0,359032, dan w₃ (LR) = 0,000000. "
+        "Dominasi bobot pada MA (64,10%) dan ES (35,90%) menunjukkan bahwa kombinasi kedua metode ini memberikan keseimbangan terbaik "
+        "dalam menangkap pola musiman dan smoothing tren time series. Sementara itu, LR mendapatkan bobot 0,000000 (0,00%) karena "
+        "memiliki error MAPE tertinggi (20,2528%) sehingga tidak memberikan kontribusi positif terhadap penurunan error ensemble."
+    ),
+    45: (
+        "Berdasarkan Tabel 3, model GWO Ensemble menghasilkan nilai MAPE terendah sebesar 11,6045%, lebih rendah dibandingkan seluruh "
+        "model baseline individu. Apabila dibandingkan dengan Seasonal MA sebagai model baseline terbaik (MAPE 12,6202%), model GWO Ensemble "
+        "memberikan peningkatan akurasi sebesar 1,02% secara absolut (atau 8,05% secara relatif). Hal ini membuktikan bahwa optimasi "
+        "pembobotan berbasis GWO berhasil meningkatkan presisi peramalan penjualan."
+    ),
+    49: (
+        "Selain unggul pada MAPE, GWO Ensemble juga mencatatkan metrik performa terbaik secara menyeluruh dibandingkan seluruh model "
+        "baseline individu: MAE sebesar 0,0663 (terbaik dibanding MA 0,0722, ES 0,0793, LR 0,0987), MSE sebesar 0,0083 (terbaik dibanding "
+        "MA 0,0102, ES 0,0116, LR 0,0132), RMSE sebesar 0,0913 (terbaik dibanding MA 0,1012, ES 0,1079, LR 0,1148), dan koefisien "
+        "determinasi R² sebesar 0,6865 (tertinggi dibanding MA 0,6149, ES 0,5623, LR 0,5046). Hal ini menegaskan efektivitas ensemble "
+        "berbobot GWO dalam meminimalkan kesalahan secara konsisten di semua metrik evaluasi."
+    ),
+    50: (
+        "Hasil ini menunjukkan bahwa pendekatan optimasi bobot ensemble dengan GWO sangat efektif dalam meningkatkan akurasi peramalan "
+        "penjualan. Stabilitas GWO yang sangat tinggi dengan nilai standar deviasi hanya 0,000026% pada 30 run independen menegaskan keandalan "
+        "algoritma ini dalam menyelesaikan permasalahan optimasi bobot ensemble pada domain time series."
+    ),
+    56: (
+        "Pertama, model weighted ensemble yang menggabungkan MA, ES, dan LR berhasil dikembangkan dengan bobot optimal: MA 64,10%, "
+        "ES 35,90%, dan LR 0,00%. Kedua, algoritma GWO berhasil menemukan kombinasi bobot optimal yang menghasilkan MAPE sebesar 11,60%, "
+        "melampaui seluruh model baseline individu. Dibandingkan best baseline MA (MAPE 12,62%), terjadi peningkatan akurasi sebesar 1,02% "
+        "secara absolut. Ketiga, hasil pengujian multi-run sebanyak 30 kali membuktikan bahwa GWO sangat robust dengan standar deviasi MAPE "
+        "yang sangat kecil, yaitu 0,000026%, menunjukkan algoritma GWO konsisten mencapai konvergensi global."
+    ),
+    57: (
+        "Penelitian selanjutnya disarankan untuk mengeksplorasi penggunaan model non-linier seperti XGBoost, Random Forest, atau Transformer "
+        "sebagai variasi baseline, serta mengaplikasikan data multivariate dengan menyertakan variabel tambahan seperti harga produk, promosi, "
+        "dan efek hari libur untuk meningkatkan presisi peramalan."
+    )
+}
+
+for idx, text in replacements_p.items():
+    p = doc.paragraphs[idx]
+    p.text = text
+
+# --- 2. UPDATE TABLES ---
+# Table 1: Baseline Models
+t1_data = [
+    ["Model", "MAPE (%)", "MAE", "MSE", "RMSE", "R²"],
+    ["MA", "12,6202", "0,0722", "0,0102", "0,1012", "0,6149"],
+    ["ES", "13,8889", "0,0793", "0,0116", "0,1079", "0,5623"],
+    ["LR", "20,2528", "0,0987", "0,0132", "0,1148", "0,5046"]
+]
+
+t1 = doc.tables[0]
+for r_i, row in enumerate(t1_data):
+    for c_i, val in enumerate(row):
+        t1.rows[r_i].cells[c_i].text = val
+
+# Table 2: GWO 30-Run Statistics
+t2_data = [
+    ["Parameter", "MAPE (%)", "w₁ (MA)", "w₂ (ES)", "w₃ (LR)"],
+    ["Terbaik", "11,604454", "0,640968", "0,359032", "0,000000"],
+    ["Terburuk", "11,604558", "0,640911", "0,359009", "0,000080"],
+    ["Rata-rata", "11,604467", "0,640968", "0,359024", "0,000008"],
+    ["Std. Deviasi", "0,000026", "0,000025", "0,000021", "0,000020"]
+]
+
+t2 = doc.tables[1]
+for r_i, row in enumerate(t2_data):
+    for c_i, val in enumerate(row):
+        t2.rows[r_i].cells[c_i].text = val
+
+# Table 3: All Models Comparison
+t3_data = [
+    ["Model", "MAPE (%)", "MAE", "MSE", "RMSE", "R²"],
+    ["MA", "12,6202", "0,0722", "0,0102", "0,1012", "0,6149"],
+    ["ES", "13,8889", "0,0793", "0,0116", "0,1079", "0,5623"],
+    ["LR", "20,2528", "0,0987", "0,0132", "0,1148", "0,5046"],
+    ["GWO Ensemble", "11,6045", "0,0663", "0,0083", "0,0913", "0,6865"]
+]
+
+t3 = doc.tables[2]
+for r_i, row in enumerate(t3_data):
+    for c_i, val in enumerate(row):
+        t3.rows[r_i].cells[c_i].text = val
+
+# --- 3. UPDATE IMAGES ---
+img_mapping = {
+    "rId8": r"c:\GWO\Analysis\Split Data Plot.png",
+    "rId9": r"c:\GWO\Analysis\GWO Convergence Plot.png",
+    "rId10": r"c:\GWO\Analysis\Grafik Perbandingan MAPE.png",
+    "rId11": r"c:\GWO\Analysis\Prediksi GWO vs Data Uji.png"
+}
+
+for rel_id, image_path in img_mapping.items():
+    if rel_id in doc.part.rels:
+        rel = doc.part.rels[rel_id]
+        with open(image_path, "rb") as img_f:
+            rel.target_part._blob = img_f.read()
+        print(f"Replaced image for {rel_id} with {os.path.basename(image_path)}")
+
+# Save updated document
+doc.save(doc_path)
+print("Successfully updated Journal2.docx!")

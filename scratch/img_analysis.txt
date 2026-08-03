@@ -1,0 +1,8 @@
+P18: blips=['rId8'] | text=''
+P19: blips=[] | text='Gambar 1. Visualisasi Pembagian Data Latih dan Data Uji'
+P35: blips=['rId9'] | text=''
+P36: blips=[] | text='Gambar 2. Kurva Konvergensi Algoritma Grey Wolf Optimizer'
+P46: blips=['rId10'] | text=''
+P47: blips=[] | text='Gambar 3. Perbandingan MAPE Seluruh Model'
+P51: blips=['rId11'] | text=''
+P52: blips=[] | text='Gambar 4. Perbandingan Prediksi GWO Ensemble dengan Data Uji'

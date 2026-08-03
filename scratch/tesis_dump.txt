@@ -1,0 +1,169 @@
+Total Paragraphs: 608
+Total Tables: 29
+
+P61 [Heading 1]: LEMBAR PERSETUJUAN TESIS
+P77 [Heading 1]: LEMBAR PENGESAHAN TESIS
+P82 [Heading 5]: Telah dipertahankan di hadapan Dewan Penguji Program Pascasarjana Universitas Pamulang
+P93 [Heading 1]: PERNYATAAN KEASLIAN TESIS
+P108 [Heading 1]: KATA PENGANTAR
+P129 [Heading 1]: PERNYATAAN PERSETUJUAN PUBLIKASI TESIS UNTUK KEPENTINGAN AKADEMIS
+P151 [Heading 1]: ABSTRAK
+P156 [Heading 1]: ABSTRACT
+P166 [Heading 1]: DAFTAR ISI
+P169 [table of figures]: Tabel 2.1 Literatur tentang penelitian sebelumnya	7
+P170 [table of figures]: Tabel  3.1 Data Penjualan	49
+P171 [table of figures]: Tabel  3.2 Spesifikasi Perangkat Keras	50
+P172 [table of figures]: Tabel 3.3 Spesifikasi Perangkat Lunak	50
+P173 [table of figures]: Tabel 4.1 Karakteristik Data	58
+P174 [table of figures]: Tabel 4.2 Analisa Deskriptif Dataset Awal	59
+P175 [table of figures]: Tabel 4.3 10 Baris Teratas Dataset Awal	59
+P176 [table of figures]: Tabel 4.4 10 Baris Terbawah Dataset Awal	60
+P177 [table of figures]: Tabel 4.5 Analisa Deskriptif Dataset Hasil Pra Pemrosesan	61
+P178 [table of figures]: Tabel 4.6 10 Baris Teratas Dataset Hasil Pra Pemrosesan	61
+P179 [table of figures]: Tabel 4.7 10 Baris Terbawah Dataset Hasil Pra Pemrosesan	62
+P180 [table of figures]: Tabel 4.8 Performa Model Baseline	67
+P181 [table of figures]: Tabel 4.9 30-run Optimasi GWO	69
+P182 [table of figures]: Tabel 4.10 Ringkasan Statistik hasil Optimasi GWO	70
+P183 [table of figures]: Tabel 4.11 Perbandingan Metrik Performa Model Baseline dan Ensemble	73
+P187 [Caption]: Gambar 2.1 Recurrent Neural Network	32
+P188 [Caption]: Gambar 2.2 Hirarki sosial serigala abu-abu	37
+P189 [Caption]: Gambar 2.3 Perilaku berburu serigala abu-abu	38
+P190 [Caption]: Gambar 2.4 Kemungkinan posisi serigala dalam peta vektor 2D dan 3D	40
+P191 [Caption]: Gambar 2.5 Perbaruan posisi serigala dalam GWO	42
+P192 [Caption]: Gambar 2.6 Menyerang mangsa vs mencari mangsa	43
+P193 [Caption]: Gambar 2.7 Pseudo Code algoritma GWO	44
+P194 [Caption]: Gambar 2.8 Diagram Kerangka Pemikiran	46
+P195 [Caption]: Gambar 3.1 Diagram Perancangan Penelitian	51
+P196 [Caption]: Gambar 4.1 Visualisasi Pembagian Data Latih dan Data Uji	63
+P197 [Caption]: Gambar 4.2 Training Loss Model RNN	64
+P198 [Caption]: Gambar 4.3 Perbandingan Prediksi Moving Average (MA) dengan Data Uji	65
+P199 [Caption]: Gambar 4.4 Perbandingan Prediksi Exponential Smoothing (ES) dan Data Uji	66
+P200 [Caption]: Gambar 4.5 Perbandingan Prediksi RNN dengan Data Uji	67
+P201 [Caption]: Gambar 4.6 Kurva Konvergensi GWO	71
+P202 [Caption]: Gambar 4.7 Perbandingan MAPE Seluruh Model	73
+P203 [Caption]: Gambar 4.8 Perbandingan Prediksi GWO Ensemble dengan Data Uji	74
+P204 [Caption]: Gambar 5.1 Infografis Perbandingan Pendekatan Univariate vs Multivariate	78
+P225 [Heading 1]: 	
+PENDAHULUAN
+P226 [Heading 2]: Latar Belakang
+P236 [Heading 2]: Permasalahan Penelitian 
+P237 [Heading 3]: Identifikasi Masalah
+P244 [Heading 3]: Ruang Lingkup Masalah 
+P252 [Heading 3]: Rumusan Masalah
+P259 [Heading 2]: Tujuan dan Manfaat Penelitian
+P270 [Heading 2]: Sistematika Penulisan
+P272 [Normal]: BAB I  PENDAHULUAN
+P274 [Normal]: BAB II  LANDASAN TEORI DAN KERANGKA PEMIKIRAN
+P276 [Normal]: BAB III  METODE PENELITIAN
+P280 [Heading 1]: 
+LANDASAN TEORI DAN KERANGKA PEMIKIRAN
+P282 [Heading 2]: Tinjauan Pustaka
+P283 [Normal]: Penelitian mengenai optimasi model ensemble/gabungan untuk peramalan/prediksi bukanlah baru pertama kali dilakukan. Berikut penelitian terdahulu yang relevan dengan penelitian ini sebagaimana tertera di Tabel 2.1. 
+P285 [Caption]: Tabel 2.1 Literatur tentang penelitian sebelumnya
+P292 [Heading 2]: Landasan Teori
+P294 [Heading 3]: Peramalan (Forecasting)
+P300 [Heading 3]: Peramalan Penjualan (Sales Forecasting)
+P305 [Heading 3]: Time Series Forecasting
+P310 [Heading 3]: AIDA (Attention, Interest, Desire, Action)
+P316 [Heading 3]: Metode Peramalan Baseline
+P318 [Heading 4]: Moving Average
+P326 [Heading 4]: Exponential Smoothing
+P332 [Heading 4]: Recurrent Neural Network
+P335 [Normal]: Gambar 2.1 mengilustrasikan sebuah elemen jaringan saraf yang diberi label “A.” Elemen ini menerima masukan yang disebut “𝑋𝑡” dan menghasilkan nilai keluaran yang disebut “ℎ𝑡.” Keberadaan loop memungkinkan pertukaran informasi antar berbagai langkah dalam jaringan. Anda dapat membayangkan jaringan saraf berulang (RNN) memiliki banyak instance “A” di dalam jaringan, di mana setiap instance secara berurutan mengirimkan informasi ke instance berikutnya.
+P337 [Normal]: .Gambar 2.1 Recurrent Neural Network (Sumber: (EL Mahjouby et al., 2024))
+P338 [Heading 3]: Metode Ensemble
+P339 [Heading 4]: Konsep Ensemble
+P342 [Heading 4]: Weighted Average Ensemble
+P347 [Heading 4]: Metode Penentuan Bobot / Weight 
+P351 [Heading 3]: Algoritma Optimasi
+P352 [Heading 4]: Permasalahan Optimasi
+P356 [Heading 4]: Algoritma Optimasi yang terinspirasi dari alam
+P363 [Heading 3]: Grey Wolf Optimizer
+P364 [Heading 4]: Inspirasi Algoritma GWO
+P367 [Normal]: Gambar 2.2 Hirarki sosial serigala abu-abu (Sumber: (Mirjalili et al., 2014))
+P373 [Normal]: Gambar 2.3 Perilaku berburu serigala abu-abu: (A) mengejar, mendekati, dan melacak mangsa (B-D) melakukan pengejaran, mengganggu, dan mengepung (E) situasi diam dan menyerang (Sumber: (Mirjalili et al., 2014))
+P375 [Heading 4]: Model Matematis dan Algoritma GWO
+P379 [Normal]: Nilai  menurun secara linier dari 2 ke 0 selama iterasi, sementara  dan  adalah vektor acak dalam interval [0,1]. Untuk melihat pengaruh dari persamaan (2.3) dan (2.4), vektor posisi dua dimensi beserta beberapa kemungkinan posisi diilustrasikan pada Gambar 2.4 (a). Seperti yang terlihat pada gambar tersebut, seekor serigala abu-abu yang berada pada posisi (X,Y) dapat memperbarui posisinya berdasarkan posisi mangsa (X*,Y*). Berbagai tempat di sekitar agen terbaik dapat dicapai dari posisi saat ini dengan menyesuaikan nilai vektor  dan . Sebagai contoh, posisi (X*-X, Y) dapat dicapai dengan mengatur  = (1,0) dan  = (1,1). Kemungkinan posisi terbaru dari seekor serigala abu-abu dalam ruang tiga dimensi diperlihatkan pada Gambar 2.4 (b). Perlu dicatat bahwa vektor acak  dan  memungkinkan serigala untuk mencapai sembarang posisi di antara titik-titik yang diilustrasikan pada Gambar 2.4. Dengan demikian, seekor serigala abu-abu dapat memperbarui posisinya di dalam ruang di sekitar mangsa pada lokasi acak mana pun dengan menggunakan persamaan (2.3) dan (2.4).
+P382 [Normal]: Gambar 2.4 Kemungkinan posisi serigala dalam peta vektor 2D dan 3D (Sumber : (Mirjalili et al., 2014))
+P386 [Normal]: Gambar 2.5 menunjukkan bagaimana seekor agen pencarian memperbarui posisinya berdasarkan gabungan arah dari alpha, beta, dan delta pada ruang dua dimensi maka hasil akhirnya cenderung jatuh di suatu titik acak dalam area yang dibatasi oleh ketiga posisi tersebut. Dengan kata lain, alpha, beta, dan delta berfungsi memperkirakan lokasi mangsa, sedangkan serigala-serigala lainnya menyesuaikan posisi secara acak di sekitar area itu.
+P388 [Normal]: Gambar 2.5 Pembaharuan posisi serigala pada GWO
+P389 [Normal]: c. Menyerang Mangsa (Attacking Prey)
+             Fase terakhir terjadi ketika mangsa berhenti bergerak dan serigala abu-abu mulai melancarkan serangan. Untuk merepresentasikan proses mendekati mangsa ini, nilai a diturunkan secara bertahap, yang otomatis mempersempit rentang fluktuasi A — dari [-2,2] menuju semakin kecil seiring a berkurang dari 2 ke 0. Ketika nilai acak A berada dalam rentang [-1,1], posisi berikutnya dari agen pencarian dapat jatuh di titik mana pun antara posisinya saat ini dan posisi mangsa. Gambar 2.6(a) memperlihatkan bahwa kondisi |A|<1 inilah yang mendorong serigala untuk bergerak menyerang ke arah mangsa.
+P391 [Normal]: Gambar 2.6 Menyerang mangsa vs mencari mangsa (Sumber: (Mirjalili et al., 2014))
+P393 [Normal]: Dalam proses pencariannya, serigala abu-abu umumnya bergerak berdasarkan posisi alpha, beta, dan delta. Mereka akan saling menjauh untuk mencari mangsa, lalu berkumpul kembali saat hendak menyerang. Untuk memodelkan perilaku menyebar ini secara matematis, kita memanfaatkan A dengan nilai acak lebih dari 1 atau kurang dari -1 sehingga agen pencarian terdorong untuk menjauh dari mangsa. Mekanisme ini memperkuat eksplorasi dan memungkinkan algoritma GWO melakukan pencarian secara global. Gambar 2.6(b) memperlihatkan bahwa kondisi |A|>1 memaksa serigala untuk menjauh dari mangsa dengan harapan dapat menemukan mangsa yang lebih baik.
+P397 [Normal]: Gambar 2.7 Pseudo Code Algoritma GWO
+P398 [Heading 2]: Kerangka Pemikiran
+P404 [Caption]: Gambar 2.8 Diagram Kerangka Pemikiran
+P405 [Body Text]: Penjelasan dari kerangka pemikiran pada Gambar 2.8 adalah sebagai berikut:
+P413 [Heading 1]: 
+METODOLOGI
+P414 [Heading 2]: Analisis Kebutuhan
+P417 [Heading 3]: Analisis Kebutuhan Data
+P420 [Caption]: Tabel 3.1 Data Penjualan
+P423 [Heading 3]: Analisis Kebutuhan Perangkat Keras
+P426 [Caption]: Tabel  3.2 Spesifikasi Perangkat Keras
+P427 [Heading 3]: 
+P428 [Heading 3]: Analisis Kebutuhan Perangkat Lunak
+P431 [Caption]: Tabel  3.3 Spesifikasi Perangkat Lunak
+P433 [Heading 2]: Perancangan Penelitian
+P437 [Caption]: Gambar 3.1 Diagram Perancangan Penelitian
+P445 [Heading 2]: Teknik Analisis
+P447 [Heading 3]: Mean Absolute Error (MAE)
+P455 [Heading 3]: Mean Squared Error (MSE)
+P463 [Heading 3]: Root Mean Squared Error (RMSE)
+P472 [Heading 3]: Mean Absolute Percentage Error (MAPE)
+P481 [Heading 3]: R-squared (R²)
+P489 [Heading 1]: 
+HASIL DAN PEMBAHASAN
+P490 [Heading 2]: Hasil
+P492 [Heading 3]: Deskripsi Data
+P494 [Caption]: Tabel 4.1. Karateristik Data
+P497 [Caption]: Tabel 4.2. Analisa Deskriptif Dataset Awal
+P500 [Caption]: Tabel 4.3. 10 Baris Teratas Dataset Awal
+P502 [Caption]: Tabel 4.4. 10 Baris Terbawah Dataset Awal
+P503 [Heading 3]: 
+P504 [Heading 3]: Pra Pemrosesan Data
+P505 [Normal]: Tahap pra-pemrosesan data dimulai dengan pembersihan data hilang melalui penghapusan baris yang memiliki nilai kosong (NaN atau null) pada kolom tanggal maupun kolom target (sales). Kemudian dilanjutkan dengan penghapusan baris data yang terduplikasi secara keseluruhan menggunakan untuk memastikan tidak ada redundansi data. Setelah data bersih, kolom tanggal dikonversi menjadi objek datetime agar urutan waktu dapat dipahami secara tepat oleh sistem. Data tersebut kemudian diurutkan secara kronologis dari yang terlama hingga yang terbaru . Tahap selanjutnya adalah agregasi data harian, di mana data dikelompokkan berdasarkan tanggal, sehingga transaksi yang terjadi pada hari yang sama disatukan menjadi satu baris total penjualan per hari. Untuk menjaga kualitas data, penanganan pencilan (outliers) diterapkan menggunakan metode Interquartile Range (IQR). Sebagai langkah terakhir, nilai penjualan / sales dinormalisasi ke dalam rentang [0, 1] menggunakan metode MinMaxScaler. Pada Tabel 4.5 diberikan analisa deskriptif dataset hasil pra pemrosesan.
+P507 [Caption]: Tabel 4.5. Analisa Deskriptif Dataset Hasil Pra Pemrosesan
+P511 [Caption]: Tabel 4.6. 10 Baris Teratas Dataset Hasil Pra Pemrosesan
+P513 [Caption]: Tabel 4.7. 10 Baris Terbawah Dataset Hasil Pra Pemrosesan
+P514 [Heading 3]: 
+P515 [Heading 3]: Pembagian Data Latih dan Data Uji
+P518 [Caption]: Gambar 4.1 Visualisasi Pembagian Data Latih dan Data Uji 
+P521 [Heading 3]: Hasil Pengujian Model Baseline
+P526 [Caption]: Gambar 4.2 Training Loss Model RNN 
+P527 [Normal]: Gambar 4.2 menunjukkan kurva training loss dari model RNN selama proses pelatihan. Terlihat bahwa loss menurun secara signifikan pada epoch-epoch awal dan mulai konvergen setelah sekitar 20 epoch, yang mengindikasikan bahwa model RNN berhasil belajar pola dari data latih tanpa mengalami overfitting yang berlebihan.
+P529 [Caption]: Gambar 4.3 Perbandingan Prediksi Moving Average (MA) dengan Data Uji 
+P531 [Normal]: Gambar 4.3 menyajikan perbandingan antara hasil prediksi model Moving Average (MA) dengan data aktual pada periode uji. Garis hitam menunjukkan data aktual, sedangkan garis biru menunjukkan hasil prediksi MA. Terlihat bahwa MA cenderung menghasilkan prediksi yang rata (smooth) dan tidak mampu menangkap fluktuasi tajam pada data aktual, yang tercermin dari nilai MAPE sebesar 44,46%.
+P533 [Caption]: Gambar 4.4 Perbandingan Prediksi Exponential Smoothing (ES) dan Data Uji 
+P535 [Normal]: Gambar 4.4 menunjukkan perbandingan prediksi model Exponential Smoothing (ES) terhadap data aktual. Model ES mampu mengikuti pergerakan data lebih baik dibandingkan MA, namun masih memiliki keterbatasan dalam menangkap pola non-linear yang kompleks. Meskipun memiliki MAPE tertinggi (46,41%), ES memiliki nilai RMSE terendah (0,1352) dan R² positif (0,0783) di antara ketiga model baseline.
+P536 [Caption]:  Gambar 4.5 Perbandingan Prediksi RNN dengan Data Uji 
+P538 [Normal]: Gambar 4.5 memperlihatkan perbandingan prediksi model RNN terhadap data aktual. RNN menunjukkan kemampuan yang lebih baik dalam menangkap pola fluktuasi data dibandingkan MA dan ES, yang dibuktikan dengan nilai MAPE terendah (41,35%) di antara ketiga model baseline. Namun, nilai R² negatif (-0,8128) mengindikasikan bahwa meskipun persentase kesalahan lebih rendah, model ini masih memiliki ketidakstabilan pada titik-titik prediksi tertentu.
+P539 [Caption]: Tabel 4.8 Performa Model Baseline
+P540 [Normal]: Berdasarkan data pada Tabel 4.8, model RNN mencatatkan performa terbaik dengan nilai MAPE terendah, yakni 41,3504%. Hal ini menunjukkan bahwa arsitektur RNN memiliki kemampuan yang lebih baik dalam menangkap pola sekuensial dan tren non-linear harian, sehingga mampu menghasilkan MAPE yang lebih kecil dibandingkan dua model lainnya (MA sebesar 44,46% dan ES sebesar 46,41%).
+P543 [Heading 3]: Hasil Optimasi Bobot Ensemble
+P544 [Normal (Web)]: Pada penelitian ini, algoritma Grey Wolf Optimizer (GWO) digunakan untuk mencari kombinasi bobot optimal dengan fungsi tujuan meminimalkan nilai Mean Absolute Percentage Error (MAPE). Mengingat GWO termasuk dalam kategori algoritma metaheuristik, pengujian tunggal tidak cukup untuk membuktikan keandalan solusi yang dihasilkan. Oleh karena itu dilakukan pengujian berulang sebanyak 30 kali (multi-run) dengan parameter ukuran populasi serigala (n-wolf) sebesar 20 dan jumlah iterasi maksimum sebesar 100 untuk setiap run. Rekapitulasi hasil uji statistik dari 30 runs tersebut disajikan pada Tabel 4.9
+P545 [Caption]: Tabel 4.9 30-run Optimasi GWO
+P548 [Caption]: Tabel 4.10. Ringkasan Statistik hasil Optimasi GWO
+P550 [Normal]: Berdasarkan ringkasan statistik hasil optimasi GWO di Tabel 4.10, Algoritma GWO mencapai nilai fitness (MAPE) terbaik sebesar 40,092401%,  MAPE terburuk sebesar 40,092441%, dan rata-rata dari nilai MAPE yang dihasilkan dari seluruh run adalah sebesar 40,092405%. Standar Deviasi MAPE berada pada angka yang sangat kecil, yaitu 0,000008%. Nilai deviasi yang mendekati nol ini mempunyai arti bahwa algoritma GWO cukup stabil karena algoritma tidak rentan terhadap variasi inisialisasi posisi 20 wolf acak di awal proses.
+P553 [Caption]: Gambar 4.6 Kurva Konvergensi GWO
+P554 [Normal]: Gambar 4.6 menampilkan kurva konvergensi dari algoritma Grey Wolf Optimizer (GWO) selama proses optimasi bobot ensemble. Kurva menunjukkan penurunan nilai fitness (MAPE) seiring bertambahnya iterasi, yang mengindikasikan bahwa GWO berhasil menemukan kombinasi bobot yang optimal. Konvergensi yang tercapai secara stabil menunjukkan keandalan algoritma GWO dalam menyelesaikan permasalahan optimasi bobot ensemble untuk peramalan time series.
+P555 [Heading 2]: Pembahasan
+P557 [Normal]: Dominasi bobot RNN yang sebesar 68,43%, MA sebesar 31,57%, dan ES sebesar 0,00%. Kombinasi bobot ini menunjukkan bahwa GWO memanfaatkan kekuatan RNN dalam menangkap pola non-linear dan memberikan porsi berarti pada MA untuk menangkap komponen linear dan tren data secara efektif, meskipun secara individu MA memiliki MAPE lebih tinggi (44,46%). ES (MAPE 46,41%) memiliki performa paling rendah di antara ketiga model baseline, sehingga GWO memberikan bobot 0,00% karena tidak memberikan kontribusi positif terhadap peningkatan akurasi ensemble. RNN (MAPE 41,35%) memiliki kemampuan menangkap pola non-linear melalui arsitekturnya, sehingga menjadi model individu terbaik. GWO memberikan bobot 68,43% karena performanya yang superior dalam menangkap pola data. Proses optimasi yang menghasilkan konfigurasi bobot tersebut divisualisasikan pada kurva konvergensi GWO di Gambar 4.6.
+P558 [Heading 3]: Bobot Ensemble 
+P560 [Heading 3]: Perbandingan Performa Model
+P561 [Normal]: Analisis performa difokuskan pada perbandingan langsung antara model ensemble teroptimasi GWO dengan ketiga model individu pendukungnya, yaitu Moving Average (MA), Exponential Smoothing (ES), dan arsitektur Recurrent Neural Network (RNN). Tujuan dari komparasi ini adalah untuk mengukur sejauh mana algoritma GWO mampu mereduksi tingkat kesalahan prediksi dibandingkan model individual. Rangkuman metrik evaluasi dari seluruh model disajikan pada Tabel 4.11 Perbandingan visual dari seluruh metrik performa disajikan pada Gambar 4.7, sedangkan perbandingan prediksi model GWO Ensemble terhadap data aktual ditampilkan pada Gambar 4.8.
+P562 [Normal]: Tabel 4.11 Perbandingan Metrik Performa Model Baseline dan Ensemble
+P564 [Normal]: Berdasarkan komparasi data pada Tabel 4.11, model GWO Ensemble menghasilkan kinerja terbaik dengan MAPE sebesar 40,0924%, lebih rendah dibandingkan semua model baseline. Apabila disandingkan dengan performa model individu terbaik (best baseline) dari penelitian ini yaitu RNN yang memiliki MAPE sebesar 41,3504%, model GWO Ensemble mencatatkan perbaikan akurasi (accuracy improvement) yang signifikan, yaitu sekitar 1,26% secara absolut. Perbandingan visual MAPE seluruh model dapat dilihat pada Gambar 4.7 yang memperkuat temuan bahwa GWO Ensemble unggul secara signifikan.
+P566 [Normal]: Gambar 4.7 Perbandingan MAPE Seluruh Model
+P567 [Normal]: Gambar 4.7 menyajikan perbandingan nilai MAPE dari seluruh model yang diuji dalam penelitian ini, yaitu Moving Average (MA), Exponential Smoothing (ES), Recurrent Neural Network (RNN), dan GWO Ensemble. Terlihat bahwa model GWO Ensemble menempati posisi terendah dengan MAPE 40,09%, diikuti oleh RNN (41,35%), MA (44,46%), dan ES (46,41%). Diagram batang ini menegaskan bahwa optimasi bobot menggunakan GWO berhasil meningkatkan akurasi peramalan secara signifikan dibandingkan seluruh model baseline maupun ensemble dengan bobot rata-rata sederhana (equal average).
+P569 [Normal]: Gambar 4.8 Perbandingan Prediksi GWO Ensemble dengan Data Uji
+P570 [Normal]: Gambar 4.8 memperlihatkan perbandingan antara hasil prediksi model GWO Ensemble dengan data aktual pada periode pengujian. Terlihat bahwa prediksi GWO Ensemble mampu mengikuti pola data aktual dengan cukup baik, terutama pada pola tren dan fluktuasi musiman. Dengan nilai MAPE sebesar 40,09%, GWO Ensemble mengungguli seluruh model individu, membuktikan efektivitas algoritma GWO dalam menentukan kombinasi bobot optimal antara model MA (31,57%) dan RNN (68,43%) untuk menghasilkan prediksi yang lebih akurat.
+P571 [Heading 3]: Peningkatan Akurasi Model GWO Ensemble
+P577 [Heading 1]: 
+KESIMPULAN DAN SARAN
+P578 [Heading 2]: Kesimpulan
+P584 [Heading 2]: Saran
+P587 [List Paragraph]: Sebagai saran praktis, penelitian selanjutnya dapat mengaplikasikan data multivariate dengan menyertakan variabel-variabel tambahan seperti harga produk, promo, hari libur, dan data musiman yang dapat memengaruhi pola penjualan. Pendekatan ini memungkinkan model menangkap hubungan kompleks antar variabel serta menghasilkan prediksi yang lebih granular dan akurat dibandingkan pendekatan univariate. Selain itu, penggunaan data yang lebih kaya dan spesifik, misalnya berdasarkan kategori produk atau wilayah toko, dapat memberikan wawasan yang lebih mendalam bagi pengambilan keputusan bisnis seperti perencanaan stok, alokasi promosi, dan strategi harga yang lebih tepat sasaran sebagaimana digambarkan pada Gambar 5.1.
+P590 [Normal]: Gambar 5.1 Infografis Perbandingan Pendekatan Univariate vs Multivariate
+P593 [Heading 1]: 
